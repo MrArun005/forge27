@@ -1,0 +1,7 @@
+# personal study data — never commit
+data.json
+data.tmp
+inbox.log
+.cursor
+run_*.py
+__pycache__/
