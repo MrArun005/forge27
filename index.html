@@ -236,6 +236,17 @@ code,pre,kbd,.mono{font-variant-ligatures:none!important;font-feature-settings:"
 .prob-body{font-size:14px}
 .prob-body p{max-width:none}
 .prob-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pin-list{display:flex;flex-direction:column;gap:10px}
+.pin-item{border:1px solid var(--line);border-left:4px solid var(--me);background:var(--raise);border-radius:12px;padding:10px 12px}
+.pin-item-head{display:flex;align-items:center;gap:8px}
+.pin-item-head b{font:700 14px/1.3 var(--display);flex:1;min-width:0}
+.pin-no{flex:none;width:20px;height:20px;border-radius:50%;background:var(--me);color:var(--me-ink);font:700 11px/20px var(--mono);text-align:center}
+.pin-day{font-size:11px;color:var(--faint);white-space:nowrap}
+.pin-item-body{margin-top:6px;font-size:13.5px;max-height:5.6em;overflow:hidden;position:relative}
+.pin-item-body::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1.6em;background:linear-gradient(transparent,var(--raise))}
+.pin-item.open .pin-item-body{max-height:none}
+.pin-item.open .pin-item-body::after{display:none}
+.pin-item .prob-actions{margin-top:8px}
 .prob-hist{display:flex;flex-direction:column;gap:6px}
 .prob-hist button{appearance:none;text-align:left;border:1px solid var(--line);background:var(--raise);border-radius:10px;padding:8px 12px;cursor:pointer;color:var(--ink);font-size:13px;display:flex;justify-content:space-between;gap:8px}
 .prob-hist button span{color:var(--faint);font-size:11.5px;white-space:nowrap}
@@ -473,6 +484,10 @@ table.plan tr.past td{color:var(--faint)}
           <button type="button" class="pin-btn" id="probUnpin" hidden>Unpin</button>
         </div>
       </div>
+      <div id="pinListWrap" hidden>
+        <p class="label">📌 Pinned (<span id="pinCount">0</span>), newest first</p>
+        <div class="pin-list" id="pinList"></div>
+      </div>
       <div id="probHistWrap" hidden>
         <p class="label">Earlier tasks</p>
         <div class="prob-hist" id="probHist"></div>
@@ -699,15 +714,25 @@ table.plan tr.past td{color:var(--faint)}
   let stuck = true;
   scroll.addEventListener("scroll", () => { stuck = nearBottom(); jump.hidden = stuck; });
   jump.onclick = () => { stuck = true; stick(true); };
-  // current task: a manual pin wins; otherwise the newest ```task block from the coach
-  let pinId = null, pinOpen = false;
-  try { pinId = localStorage.getItem("forge27-pin"); } catch (_) {}
+  // the Problem card always shows the current task (the newest ```task block, or the server's task).
+  // Pins are a separate stack, newest first, shown under it.
+  let pins = [], pinOpen = false;
+  try {
+    pins = JSON.parse(localStorage.getItem("forge27-pins") || "[]");
+    const old = localStorage.getItem("forge27-pin");
+    if (old && !pins.includes(old)) { pins.unshift(old); localStorage.removeItem("forge27-pin"); }
+  } catch (_) { pins = []; }
+  const isPinned = id => pins.includes(id);
+  function togglePin(id) {
+    pins = isPinned(id) ? pins.filter(x => x !== id) : [id, ...pins];
+    try { localStorage.setItem("forge27-pins", JSON.stringify(pins)); } catch (_) {}
+    renderThread();
+  }
+  const openPins = new Set();
   const taskOf = text => { const all = [...String(text || "").matchAll(/```task\n([\s\S]*?)```/g)]; return all.length ? all[all.length - 1][1].trim() : null; };
   const titleOf = t => (t.split("\n").map(x => x.trim()).find(Boolean) || "").replace(/^#+\s*|\*\*/g, "").slice(0, 90);
   let serverTask = null; // { text, fromId, updatedAt } kept by the server
   function currentTask() {
-    const byId = pinId && messages.find(m => m.id === pinId);
-    if (byId) return { id: byId.id, text: taskOf(byId.text) || byId.text, manual: true };
     let fromMsg = null;
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
@@ -716,7 +741,6 @@ table.plan tr.past td{color:var(--faint)}
     if (serverTask && serverTask.text && (!fromMsg || (serverTask.updatedAt || 0) > fromMsg.at)) return { id: serverTask.fromId, text: serverTask.text, manual: false };
     return fromMsg;
   }
-  function setPin(id) { pinId = id; try { id ? localStorage.setItem("forge27-pin", id) : localStorage.removeItem("forge27-pin"); } catch (_) {} renderThread(); }
   function jumpTo(id) {
     const el = $("m-" + id); if (!el) return;
     if ($("side").classList.contains("show")) $("side").classList.remove("show");
@@ -727,9 +751,8 @@ table.plan tr.past td{color:var(--faint)}
     $("probEmpty").hidden = !!t; $("probCard").hidden = !t;
     if (t) {
       $("probTitle").textContent = titleOf(t.text);
-      $("probSrc").textContent = t.manual ? "pinned by you" : "set by coach";
+      $("probSrc").textContent = "set by coach";
       $("probBody").innerHTML = md(lineBreaks(t.text.split("\n").slice(1).join("\n") || t.text));
-      $("probUnpin").hidden = !t.manual;
       $("probJump").onclick = () => jumpTo(t.id);
       $("tCode").textContent = titleOf(t.text);
       $("chipCode").textContent = titleOf(t.text);
@@ -737,10 +760,26 @@ table.plan tr.past td{color:var(--faint)}
       $("tCode").textContent = probToday;
       $("chipCode").textContent = probToday;
     }
-    const hist = messages.filter(m => m.role !== "arun" && taskOf(m.text) && (!t || m.id !== t.id)).reverse().slice(0, 8);
+    // pinned stack: newest pin first
+    const pinned = pins.map(id => messages.find(m => m.id === id)).filter(Boolean);
+    $("pinListWrap").hidden = !pinned.length;
+    $("pinCount").textContent = pinned.length;
+    $("pinList").innerHTML = pinned.map((m, i) => {
+      const body = taskOf(m.text) || m.text, open = openPins.has(m.id);
+      return '<div class="pin-item' + (open ? " open" : "") + '" data-id="' + m.id + '"><div class="pin-item-head"><span class="pin-no">' + (i + 1) + '</span><b>' + esc(titleOf(body)) +
+        '</b><span class="pin-day">Day ' + (m.day || 1) + '</span></div><div class="md pin-item-body">' + md(taskOf(m.text) ? lineBreaks(body) : body) +
+        '</div><div class="prob-actions"><button type="button" class="pin-btn" data-act="toggle">' + (open ? "Show less" : "Show all") + '</button><button type="button" class="pin-btn" data-act="go">Go to message</button><button type="button" class="pin-btn" data-act="unpin">Unpin</button></div></div>';
+    }).join("");
+    $("pinList").querySelectorAll(".pin-item").forEach(el => el.querySelectorAll("button").forEach(b => b.onclick = () => {
+      const id = el.dataset.id;
+      if (b.dataset.act === "toggle") { openPins.has(id) ? openPins.delete(id) : openPins.add(id); renderSideProblem(currentTask()); }
+      else if (b.dataset.act === "go") jumpTo(id);
+      else togglePin(id);
+    }));
+    const hist = messages.filter(m => m.role !== "arun" && taskOf(m.text) && (!t || m.id !== t.id) && !isPinned(m.id)).reverse().slice(0, 8);
     $("probHistWrap").hidden = !hist.length;
-    $("probHist").innerHTML = hist.map(m => '<button type="button" data-pin="' + m.id + '">' + esc(titleOf(taskOf(m.text))) + "<span>Day " + (m.day || 1) + "</span></button>").join("");
-    $("probHist").querySelectorAll("button").forEach(b => b.onclick = () => setPin(b.dataset.pin));
+    $("probHist").innerHTML = hist.map(m => '<button type="button" data-pin="' + m.id + '">' + esc(titleOf(taskOf(m.text))) + "<span>📌 Pin · Day " + (m.day || 1) + "</span></button>").join("");
+    $("probHist").querySelectorAll("button").forEach(b => b.onclick = () => togglePin(b.dataset.pin));
   }
   function renderPin() {
     const t = currentTask(), bar = $("pinbar");
@@ -748,8 +787,7 @@ table.plan tr.past td{color:var(--faint)}
     bar.hidden = !t;
     if (!t) { $("edTask").textContent = ""; return; }
     $("pinTitle").textContent = titleOf(t.text);
-    $("pinSrc").textContent = t.manual ? "pinned by you" : "set by coach";
-    $("pinClear").hidden = !t.manual;
+    $("pinSrc").textContent = pins.length ? "set by coach · " + pins.length + " pinned in the Problem tab" : "set by coach";
     $("pinBody").innerHTML = md(lineBreaks(t.text));
     bar.classList.toggle("open", pinOpen);
     $("pinToggle").textContent = pinOpen ? "Show less" : "Show all";
@@ -761,7 +799,6 @@ table.plan tr.past td{color:var(--faint)}
     $("edTask").textContent = "Task: " + titleOf(t.text);
   }
   $("pinToggle").onclick = () => { pinOpen = !pinOpen; renderPin(); };
-  $("probUnpin").onclick = () => setPin(null);
   $("probCode").onclick = () => { if ($("side").classList.contains("show")) $("side").classList.remove("show"); openEditor(true); };
   function showTab(name) {
     ["problem", "today"].forEach(n => { $("tab-" + n).hidden = n !== name; $("st-" + n).setAttribute("aria-selected", String(n === name)); });
@@ -792,7 +829,6 @@ table.plan tr.past td{color:var(--faint)}
   let savedTab = "problem";
   try { savedTab = localStorage.getItem("forge27-tab") || "problem"; } catch (_) {}
   showTab(savedTab === "today" ? "today" : "problem");
-  $("pinClear").onclick = () => setPin(null);
   const timeStr = t => new Date(t).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
   const trackName = t => t === "sd" ? "System design" : t === "code" ? "Coding" : "General";
 
@@ -809,7 +845,7 @@ table.plan tr.past td{color:var(--faint)}
         const w = isWaiting(m);
         html += '<div class="msg me-row"><div class="me-wrap"><div class="me-bubble">' + plain(m.text) + '</div><div class="me-meta">' + tg + "<span>" + timeStr(m.createdAt) + '</span><span class="state ' + (w ? "wait" : "done") + '">' + (w ? "Sent" : "Answered") + "</span></div></div></div>";
       } else {
-        const pinned = pinId === m.id;
+        const pinned = isPinned(m.id);
         html += '<div class="msg" id="m-' + m.id + '"><div class="avatar" aria-hidden="true">C</div><div class="coach-card' + (pinned ? " is-pinned" : "") + '"><div class="meta"><b>Coach</b>' + tg + "<span>" + timeStr(m.createdAt) + '</span><button type="button" class="pinbtn" data-pin="' + m.id + '">' + (pinned ? "📌 Pinned" : "📌 Pin") + '</button></div><div class="md">' + md(m.text) + "</div></div></div>";
       }
     });
@@ -820,7 +856,7 @@ table.plan tr.past td{color:var(--faint)}
       html += '<div class="typing"><div class="avatar" aria-hidden="true">C</div><div class="coach-card"><span class="dots"><i></i><i></i><i></i></span>' + esc(live.status || "Coach is reading your answer…") + "</div></div>";
     }
     thread.innerHTML = html;
-    thread.querySelectorAll(".pinbtn").forEach(b => b.onclick = () => setPin(pinId === b.dataset.pin ? null : b.dataset.pin));
+    thread.querySelectorAll(".pinbtn").forEach(b => b.onclick = () => togglePin(b.dataset.pin));
     renderPin();
     thread.querySelectorAll(".copy").forEach(b => b.onclick = () => {
       const code = b.parentElement.querySelector("code").innerText;
