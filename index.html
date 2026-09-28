@@ -75,7 +75,12 @@ button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 [hidden]{display:none!important}
 
-.app{height:100%;display:grid;grid-template-columns:76px minmax(0,1fr) 340px;grid-template-rows:minmax(0,1fr);overflow:hidden}
+.app{height:100%;display:grid;grid-template-columns:76px minmax(0,1fr) var(--side-w,380px);grid-template-rows:minmax(0,1fr);overflow:hidden}
+.side-resize{position:fixed;top:0;bottom:0;right:var(--side-w,380px);width:10px;transform:translateX(5px);cursor:col-resize;z-index:30;touch-action:none}
+.side-resize::after{content:"";position:absolute;top:50%;left:3px;width:4px;height:44px;margin-top:-22px;border-radius:2px;background:var(--line);transition:background .15s}
+.side-resize:hover::after,.side-resize.drag::after{background:var(--accent)}
+body.resizing{cursor:col-resize;user-select:none}
+@media (max-width:1180px){.side-resize{display:none}}
 
 /* rail */
 .rail{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px}
@@ -217,7 +222,25 @@ code,pre,kbd,.mono{font-variant-ligatures:none!important;font-feature-settings:"
 .code-toggle[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:transparent}
 
 /* right panel */
-.side{border-left:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:22px 20px;display:flex;flex-direction:column;gap:22px}
+.side{border-left:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:0 20px 22px;display:flex;flex-direction:column}
+.side-tabs{position:sticky;top:0;z-index:2;background:var(--panel);display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:14px 0 12px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.side-tabs button{appearance:none;border:1px solid var(--line);background:var(--raise);border-radius:10px;padding:8px;font:600 13.5px var(--body);color:var(--muted);cursor:pointer}
+.side-tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tabpane{display:flex;flex-direction:column;gap:22px}
+.prob-empty{border:2px dashed var(--line);border-radius:12px;padding:18px;color:var(--muted);font-size:13.5px}
+.prob-empty b{display:block;color:var(--ink);font:700 15px var(--display);margin-bottom:4px}
+.prob-empty p{margin:0}
+#probCard{border:2px solid var(--ember);background:var(--ember-soft);border-radius:14px;padding:14px 16px}
+.prob-top{display:flex;align-items:center;gap:8px}
+.prob-title{font:800 19px/1.25 var(--display);margin:10px 0 8px;letter-spacing:-.01em}
+.prob-body{font-size:14px}
+.prob-body p{max-width:none}
+.prob-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.prob-hist{display:flex;flex-direction:column;gap:6px}
+.prob-hist button{appearance:none;text-align:left;border:1px solid var(--line);background:var(--raise);border-radius:10px;padding:8px 12px;cursor:pointer;color:var(--ink);font-size:13px;display:flex;justify-content:space-between;gap:8px}
+.prob-hist button span{color:var(--faint);font-size:11.5px;white-space:nowrap}
+.prob-hist button:hover{border-color:var(--accent-line)}
+@media (min-width:1181px){.pinbar{display:none!important}}
 .count{display:flex;gap:16px;align-items:center}
 .ring{flex:none;width:84px;height:84px}
 .ring circle{fill:none;stroke-width:8}
@@ -340,7 +363,7 @@ table.plan tr.past td{color:var(--faint)}
         <span class="chip sd">System design <b id="chipSD">—</b></span>
       </div>
       <span class="conn" id="conn"><i class="dot"></i>Connecting…</span>
-      <button class="today-toggle" id="todayToggle" type="button">Today</button>
+      <button class="today-toggle" id="todayToggle" type="button">Problem</button>
     </header>
 
     <section class="view" id="view-coach">
@@ -428,7 +451,35 @@ table.plan tr.past td{color:var(--faint)}
     </section>
   </div>
 
-  <aside class="side" id="side" aria-label="Today">
+  <div class="side-resize" id="sideResize" role="separator" aria-orientation="vertical" aria-label="Drag to resize the problem panel" tabindex="0"></div>
+  <aside class="side" id="side" aria-label="Problem and today">
+    <div class="side-tabs" role="tablist">
+      <button type="button" role="tab" id="st-problem" data-tab="problem" aria-selected="true">Problem</button>
+      <button type="button" role="tab" id="st-today" data-tab="today" aria-selected="false">Today</button>
+    </div>
+
+    <div class="tabpane" id="tab-problem" role="tabpanel">
+      <div class="prob-empty" id="probEmpty">
+        <b>No problem yet</b>
+        <p>Ask the coach "give me the next problem", or 📌 pin any coach message.</p>
+      </div>
+      <div id="probCard" hidden>
+        <div class="prob-top"><span class="pin-label">Working on</span><span class="pin-src" id="probSrc"></span></div>
+        <h2 class="prob-title" id="probTitle"></h2>
+        <div class="md prob-body" id="probBody"></div>
+        <div class="prob-actions">
+          <button type="button" class="pin-btn" id="probCode">&lt;/&gt; Open editor</button>
+          <button type="button" class="pin-btn" id="probJump">Go to message</button>
+          <button type="button" class="pin-btn" id="probUnpin" hidden>Unpin</button>
+        </div>
+      </div>
+      <div id="probHistWrap" hidden>
+        <p class="label">Earlier tasks</p>
+        <div class="prob-hist" id="probHist"></div>
+      </div>
+    </div>
+
+    <div class="tabpane" id="tab-today" role="tabpanel" hidden>
     <div class="count">
       <svg class="ring" viewBox="0 0 84 84" aria-hidden="true">
         <defs><linearGradient id="sunGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--sun-a)"/><stop offset="1" stop-color="var(--sun-b)"/></linearGradient></defs>
@@ -477,6 +528,7 @@ table.plan tr.past td{color:var(--faint)}
     <div>
       <p class="label">This week's system design</p>
       <div class="week" id="weekList"></div>
+    </div>
     </div>
   </aside>
 </div>
@@ -651,18 +703,47 @@ table.plan tr.past td{color:var(--faint)}
   try { pinId = localStorage.getItem("forge27-pin"); } catch (_) {}
   const taskOf = text => { const all = [...String(text || "").matchAll(/```task\n([\s\S]*?)```/g)]; return all.length ? all[all.length - 1][1].trim() : null; };
   const titleOf = t => (t.split("\n").map(x => x.trim()).find(Boolean) || "").replace(/^#+\s*|\*\*/g, "").slice(0, 90);
+  let serverTask = null; // { text, fromId, updatedAt } kept by the server
   function currentTask() {
     const byId = pinId && messages.find(m => m.id === pinId);
     if (byId) return { id: byId.id, text: taskOf(byId.text) || byId.text, manual: true };
+    let fromMsg = null;
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
-      if (m.role !== "arun") { const t = taskOf(m.text); if (t) return { id: m.id, text: t, manual: false }; }
+      if (m.role !== "arun") { const t = taskOf(m.text); if (t) { fromMsg = { id: m.id, text: t, manual: false, at: m.createdAt || 0 }; break; } }
     }
-    return null;
+    if (serverTask && serverTask.text && (!fromMsg || (serverTask.updatedAt || 0) > fromMsg.at)) return { id: serverTask.fromId, text: serverTask.text, manual: false };
+    return fromMsg;
   }
   function setPin(id) { pinId = id; try { id ? localStorage.setItem("forge27-pin", id) : localStorage.removeItem("forge27-pin"); } catch (_) {} renderThread(); }
+  function jumpTo(id) {
+    const el = $("m-" + id); if (!el) return;
+    if ($("side").classList.contains("show")) $("side").classList.remove("show");
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    const card = el.querySelector(".coach-card"); card.classList.add("flash"); setTimeout(() => card.classList.remove("flash"), 1600);
+  }
+  function renderSideProblem(t) {
+    $("probEmpty").hidden = !!t; $("probCard").hidden = !t;
+    if (t) {
+      $("probTitle").textContent = titleOf(t.text);
+      $("probSrc").textContent = t.manual ? "pinned by you" : "set by coach";
+      $("probBody").innerHTML = md(t.text.split("\n").slice(1).join("\n") || t.text);
+      $("probUnpin").hidden = !t.manual;
+      $("probJump").onclick = () => jumpTo(t.id);
+      $("tCode").textContent = titleOf(t.text);
+      $("chipCode").textContent = titleOf(t.text);
+    } else {
+      $("tCode").textContent = probToday;
+      $("chipCode").textContent = probToday;
+    }
+    const hist = messages.filter(m => m.role !== "arun" && taskOf(m.text) && (!t || m.id !== t.id)).reverse().slice(0, 8);
+    $("probHistWrap").hidden = !hist.length;
+    $("probHist").innerHTML = hist.map(m => '<button type="button" data-pin="' + m.id + '">' + esc(titleOf(taskOf(m.text))) + "<span>Day " + (m.day || 1) + "</span></button>").join("");
+    $("probHist").querySelectorAll("button").forEach(b => b.onclick = () => setPin(b.dataset.pin));
+  }
   function renderPin() {
     const t = currentTask(), bar = $("pinbar");
+    renderSideProblem(t);
     bar.hidden = !t;
     if (!t) { $("edTask").textContent = ""; return; }
     $("pinTitle").textContent = titleOf(t.text);
@@ -679,6 +760,37 @@ table.plan tr.past td{color:var(--faint)}
     $("edTask").textContent = "Task: " + titleOf(t.text);
   }
   $("pinToggle").onclick = () => { pinOpen = !pinOpen; renderPin(); };
+  $("probUnpin").onclick = () => setPin(null);
+  $("probCode").onclick = () => { if ($("side").classList.contains("show")) $("side").classList.remove("show"); openEditor(true); };
+  function showTab(name) {
+    ["problem", "today"].forEach(n => { $("tab-" + n).hidden = n !== name; $("st-" + n).setAttribute("aria-selected", String(n === name)); });
+    try { localStorage.setItem("forge27-tab", name); } catch (_) {}
+  }
+  document.querySelectorAll(".side-tabs button").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+
+  // resizable problem panel: drag the handle, or use arrow keys on it; width is remembered
+  const clampW = w => Math.round(Math.max(280, Math.min(window.innerWidth * 0.6, w)));
+  const setSideW = w => { const v = clampW(w); document.documentElement.style.setProperty("--side-w", v + "px"); return v; };
+  try { const w = +localStorage.getItem("forge27-side-w"); if (w) setSideW(w); } catch (_) {}
+  const handle = $("sideResize");
+  const saveW = () => { try { localStorage.setItem("forge27-side-w", String(parseInt(getComputedStyle(document.documentElement).getPropertyValue("--side-w")) || 380)); } catch (_) {} };
+  handle.addEventListener("pointerdown", e => {
+    e.preventDefault(); handle.setPointerCapture(e.pointerId); handle.classList.add("drag"); document.body.classList.add("resizing");
+    const move = ev => setSideW(window.innerWidth - ev.clientX);
+    const up = () => { handle.removeEventListener("pointermove", move); handle.removeEventListener("pointerup", up); handle.classList.remove("drag"); document.body.classList.remove("resizing"); saveW(); };
+    handle.addEventListener("pointermove", move); handle.addEventListener("pointerup", up);
+  });
+  handle.addEventListener("dblclick", () => { setSideW(380); saveW(); });
+  handle.addEventListener("keydown", e => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    const cur = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--side-w")) || 380;
+    setSideW(cur + (e.key === "ArrowLeft" ? 24 : -24)); saveW();
+  });
+  window.addEventListener("resize", () => { const cur = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--side-w")); if (cur) setSideW(cur); });
+  let savedTab = "problem";
+  try { savedTab = localStorage.getItem("forge27-tab") || "problem"; } catch (_) {}
+  showTab(savedTab === "today" ? "today" : "problem");
   $("pinClear").onclick = () => setPin(null);
   const timeStr = t => new Date(t).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
   const trackName = t => t === "sd" ? "System design" : t === "code" ? "Coding" : "General";
@@ -864,14 +976,15 @@ table.plan tr.past td{color:var(--faint)}
     if (!r.ok) throw new Error("HTTP " + r.status);
     return r.json();
   }
-  let lastM = "", lastD = "";
+  let lastM = "", lastD = "", lastTk = "";
   async function poll() {
     try {
       const s = await api("/api/state");
       if (!online) { online = true; canSend(); }
       $("conn").innerHTML = '<i class="dot live"></i>Coach connected';
       const m = JSON.stringify(s.messages), d = JSON.stringify(s.days);
-      if (m !== lastM) { lastM = m; messages = s.messages.slice().sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0)); renderThread(); }
+      const tk = JSON.stringify(s.task || null);
+      if (m !== lastM || tk !== lastTk) { lastM = m; lastTk = tk; serverTask = s.task || null; messages = s.messages.slice().sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0)); renderThread(); }
       if (d !== lastD) { lastD = d; days = s.days || {}; renderDay(); renderLog(); }
     } catch (_) {
       online = false; canSend();
@@ -879,6 +992,9 @@ table.plan tr.past td{color:var(--faint)}
     }
   }
   poll(); setInterval(poll, 2500);
+
+  // a tab left open past midnight would keep yesterday's day number; reload when the date changes
+  setInterval(() => { if (key(midnight(new Date())) !== todayKey && !ask.value.trim()) location.reload(); }, 60000);
 
   // live coach stream: fast polling only while a reply is being written
   let liveKey = "";

@@ -119,11 +119,15 @@ def coach_worker():
             for m in state["messages"]:
                 if m["id"] in ids:
                     m["status"] = "answered"
-            state["messages"].append({
+            reply = {
                 "id": uuid.uuid4().hex[:12], "role": "coach", "text": text or "(no reply)",
                 "track": target.get("track", "general"), "day": target.get("day"),
                 "replyTo": target["id"], "createdAt": int(time.time() * 1000),
-            })
+            }
+            state["messages"].append(reply)
+            found = re.findall(r"```task\n(.*?)```", reply["text"], re.S)
+            if found:  # the newest task card becomes the current task
+                state["task"] = {"text": found[-1].strip(), "fromId": reply["id"], "updatedAt": reply["createdAt"]}
             save(state)
         LIVE.update(active=False, replyTo=None, text="", status="")
         with LOCK:
@@ -210,6 +214,11 @@ class Handler(BaseHTTPRequestHandler):
                         f.write(json.dumps({"id": msg["id"], "track": msg["track"], "day": msg["day"], "text": msg["text"]}, ensure_ascii=False) + "\n")
                     WAKE.set()
                 self.send_json(msg, 201)
+            elif parts == ["api", "task"]:
+                state["task"] = {"text": str(body.get("text", "")), "fromId": body.get("fromId"),
+                                 "updatedAt": int(time.time() * 1000)}
+                save(state)
+                self.send_json(state["task"])
             elif len(parts) == 3 and parts[:2] == ["api", "days"]:
                 state["days"][parts[2]] = body
                 save(state)
