@@ -649,11 +649,12 @@ table.plan tr.past td{color:var(--faint)}
     const m = raw.match(/^([a-zA-Z0-9]*)\n/);
     const lang = m ? m[1].toLowerCase() : "";
     const code = (m ? raw.slice(m[0].length) : raw).replace(/\n$/, "");
-    if (lang === "task") return '<div class="taskcard"><span class="tk-label">📌 Task</span>' + md(code) + "</div>";
+    if (lang === "task") return '<div class="taskcard"><span class="tk-label">📌 Task</span>' + md(lineBreaks(code)) + "</div>";
     let html = esc(code);
     if ((lang === "python" || lang === "py") && window.hljs) { try { html = hljs.highlight(code, { language: "python" }).value; } catch (_) {} }
     return '<div class="codebox">' + (lang && lang !== "text" ? '<span class="lang">' + esc(lang) + "</span>" : "") + '<button class="copy" type="button">Copy</button><pre><code>' + html + "</code></pre></div>";
   }
+  const lineBreaks = t => t.split("\n").map(x => x.trim()).filter(Boolean).join("\n\n"); // keep task lines separate
   function md(src) {
     let out = "";
     String(src || "").split(/```/).forEach((part, i) => {
@@ -727,7 +728,7 @@ table.plan tr.past td{color:var(--faint)}
     if (t) {
       $("probTitle").textContent = titleOf(t.text);
       $("probSrc").textContent = t.manual ? "pinned by you" : "set by coach";
-      $("probBody").innerHTML = md(t.text.split("\n").slice(1).join("\n") || t.text);
+      $("probBody").innerHTML = md(lineBreaks(t.text.split("\n").slice(1).join("\n") || t.text));
       $("probUnpin").hidden = !t.manual;
       $("probJump").onclick = () => jumpTo(t.id);
       $("tCode").textContent = titleOf(t.text);
@@ -749,7 +750,7 @@ table.plan tr.past td{color:var(--faint)}
     $("pinTitle").textContent = titleOf(t.text);
     $("pinSrc").textContent = t.manual ? "pinned by you" : "set by coach";
     $("pinClear").hidden = !t.manual;
-    $("pinBody").innerHTML = md(t.text);
+    $("pinBody").innerHTML = md(lineBreaks(t.text));
     bar.classList.toggle("open", pinOpen);
     $("pinToggle").textContent = pinOpen ? "Show less" : "Show all";
     $("pinJump").onclick = () => {
