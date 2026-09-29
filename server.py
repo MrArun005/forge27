@@ -55,6 +55,72 @@ def auto_tick(state, track):
         r["updatedAt"] = int(time.time() * 1000)
 
 
+# ---------- mastery tracker: seen -> solved -> mastered, with spaced re-solves ----------
+STATUS_BLOCK = re.compile(r"```status\n(.*?)```", re.S)
+
+
+def day_str(offset=0):
+    return time.strftime("%Y-%m-%d", time.localtime(time.time() + offset * 86400))
+
+
+def apply_status(state, block):
+    """Parse a coach ```status block (problem: X / result: seen|solved|resolved|failed) and update the tracker."""
+    fields = dict(re.findall(r"^\s*(\w+)\s*:\s*(.+?)\s*$", block, re.M))
+    name, result = fields.get("problem", "").strip(), fields.get("result", "").strip().lower()
+    if not name or result not in ("seen", "solved", "resolved", "failed"):
+        return
+    probs = state.setdefault("problems", {})
+    key = next((k for k in probs if k.lower() == name.lower()), name)
+    p = probs.setdefault(key, {"status": "seen", "reviews": []})
+    now = int(time.time() * 1000)
+    if result == "solved" and p["status"] == "seen":
+        p.update(status="solved", solvedAt=now, due=day_str(1))
+    elif result == "resolved":
+        p["reviews"].append({"at": now, "ok": True})
+        if p["status"] == "seen":  # a cold solve with no earlier solve still counts as the first solve
+            p.update(status="solved", solvedAt=now, due=day_str(1))
+        else:
+            wins = sum(1 for r in p["reviews"] if r["ok"])
+            old_enough = now - p.get("solvedAt", now) >= 3 * 86400 * 1000
+            if wins >= 2 and old_enough:
+                p.update(status="mastered", due=day_str(21))
+            else:
+                p["due"] = day_str(3 if wins == 1 else 7)
+    elif result == "failed":
+        p["reviews"].append({"at": now, "ok": False})
+        if p["status"] == "mastered":
+            p["status"] = "solved"
+        p["due"] = day_str(1)
+    p["updatedAt"] = now
+
+
+def tracker_line(state):
+    probs = state.get("problems", {})
+    if not probs:
+        return ""
+    today = day_str()
+    due = [k for k, p in probs.items() if p["status"] != "seen" and p.get("due", "9") <= today]
+    by = lambda s: [k for k, p in probs.items() if p["status"] == s]
+    return (f"Tracker: due for a cold re-solve today: {', '.join(due) or 'none'}. "
+            f"Solved: {', '.join(by('solved')) or 'none'}. Mastered: {', '.join(by('mastered')) or 'none'}. "
+            f"Seen with heavy help (not solved yet): {', '.join(by('seen')) or 'none'}.\n\n")
+
+
+def trace_code(code):
+    src = ROOT / f"run_{uuid.uuid4().hex[:8]}.py"
+    src.write_text(code, encoding="utf-8")
+    try:
+        r = subprocess.run([sys.executable, str(ROOT / "tracer.py"), str(src)], capture_output=True, text=True,
+                           timeout=5, cwd=str(ROOT), encoding="utf-8", errors="replace")
+        return json.loads(r.stdout or '{"steps": [], "error": "The tracer produced no output."}')
+    except subprocess.TimeoutExpired:
+        return {"steps": [], "error": "Stopped after 5 seconds. Is there an infinite loop?"}
+    except ValueError:
+        return {"steps": [], "error": "Couldn't read the trace."}
+    finally:
+        src.unlink(missing_ok=True)
+
+
 def transcript(messages, limit=16):
     lines = []
     for m in messages[-limit:]:
@@ -123,7 +189,7 @@ def coach_reply(state):
     if re.search(r"update (my )?progress", latest, re.I):
         LIVE["status"] = "Updating your progress file…"
         update_progress(state)
-    base = (f"Today is day {today_day()} of 136 of Arun's plan.\n\n"
+    base = (f"Today is day {today_day()} of 136 of Arun's plan.\n" + tracker_line(state) +
             "Here is the recent chat, oldest first. Reply to Arun's latest message(s):\n\n" + transcript(state["messages"]))
     with_progress = lambda: ("Arun's progress file (progress.md), for context:\n\n" + PROGRESS.read_text(encoding="utf-8")
                              + "\n\n---\n\n" + base) if PROGRESS.exists() else base
@@ -182,6 +248,8 @@ def coach_worker():
                 "replyTo": target["id"], "createdAt": int(time.time() * 1000),
             }
             state["messages"].append(reply)
+            for block in STATUS_BLOCK.findall(reply["text"]):
+                apply_status(state, block)
             found = re.findall(r"```task\n(.*?)```", reply["text"], re.S)
             if found:  # the newest task card becomes the current task
                 state["task"] = {"text": found[-1].strip(), "fromId": reply["id"], "updatedAt": reply["createdAt"]}
@@ -245,6 +313,9 @@ class Handler(BaseHTTPRequestHandler):
         body = self.read_body()
         if parts == ["api", "run"]:
             self.send_json(run_code(str(body.get("code", ""))))
+            return
+        if parts == ["api", "trace"]:
+            self.send_json(trace_code(str(body.get("code", ""))))
             return
         with LOCK:
             state = load()

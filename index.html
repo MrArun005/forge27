@@ -216,6 +216,32 @@ code,pre,kbd,.mono{font-variant-ligatures:none!important;font-feature-settings:"
 .ed-body{display:grid;grid-template-columns:auto 1fr;height:230px;resize:vertical;overflow:hidden;min-height:120px}
 .gutter{padding:12px 10px 12px 28px;text-align:right;color:var(--hl-c);font:13.5px/1.6 var(--mono);white-space:pre;overflow:hidden;user-select:none;opacity:.7}
 #code{border:0;outline:none;resize:none;background:transparent;color:var(--code-ink);font:13.5px/1.6 var(--mono);padding:12px 16px 12px 6px;tab-size:4;white-space:pre;overflow:auto;caret-color:var(--hl-n)}
+.ed-trace{background:var(--sun-a);color:#2a1a00}
+.trace{border-top:1px solid var(--code-line);background:rgba(0,0,0,.22);padding:10px 16px 12px 28px;color:var(--code-ink)}
+.tr-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tr-btn{appearance:none;border:1px solid var(--code-line);background:var(--code-bg);color:var(--code-ink);border-radius:7px;padding:4px 9px;font-size:13px;cursor:pointer}
+.tr-btn:hover{border-color:var(--hl-f)}
+#trSlider{flex:1;min-width:120px;accent-color:var(--sun-a)}
+.tr-step{font:12px var(--mono);color:var(--hl-c);min-width:92px}
+.tr-predict{font-size:12px;display:flex;gap:5px;align-items:center;cursor:pointer;color:var(--hl-n)}
+.tr-close{margin-left:auto;font-size:16px;padding:1px 8px}
+.tr-line{margin:9px 0 8px;font:13px/1.5 var(--mono);background:var(--code-bg);border:1px solid var(--code-line);border-left:3px solid var(--sun-a);border-radius:6px;padding:5px 10px;white-space:pre;overflow-x:auto}
+.tr-line b{color:var(--sun-a);margin-right:10px}
+.tr-line .tr-ev{float:right;color:var(--hl-c);font-size:11px}
+.tr-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:10px}
+.tr-vars{width:100%;border-collapse:collapse;font:12.5px var(--mono)}
+.tr-vars th{text-align:left;color:var(--hl-c);font:600 10.5px var(--body);text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-bottom:1px solid var(--code-line)}
+.tr-vars td{padding:3px 8px;border-bottom:1px dashed var(--code-line);vertical-align:top;overflow-wrap:anywhere}
+.tr-vars td:first-child{color:var(--hl-f);white-space:nowrap}
+.tr-vars tr.changed td{background:rgba(255,194,61,.14)}
+.tr-vars tr.changed td:last-child{color:var(--sun-a);font-weight:600}
+.tr-vars tr.new td:last-child{color:var(--hl-s)}
+.tr-q{appearance:none;border:1px dashed var(--sun-a);background:transparent;color:var(--sun-a);border-radius:5px;padding:0 10px;font:700 12px var(--mono);cursor:pointer}
+.tr-out{margin:0;font:12.5px/1.5 var(--mono);background:var(--code-bg);border:1px solid var(--code-line);border-radius:6px;padding:6px 10px;white-space:pre-wrap;max-height:130px;overflow:auto}
+.tr-hint{margin-top:6px;font-size:11px;color:var(--hl-c)}
+.tr-hint kbd{font:10.5px var(--mono);border:1px solid var(--code-line);border-radius:4px;padding:0 4px}
+.gutter .cur{color:var(--sun-a);font-weight:700}
+.gutter .cur::before{content:"▶ ";}
 .ed-out{margin:0;border-top:1px solid var(--code-line);padding:10px 28px;max-height:170px;overflow:auto;font:13px/1.55 var(--mono);white-space:pre-wrap;background:rgba(0,0,0,.18)}
 .ed-out .muted{color:var(--hl-c)} .ed-out .err{color:#ff9aa8} .ed-out .ok{color:var(--hl-s)}
 .code-toggle{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:4px 10px;font:600 12px var(--mono);cursor:pointer;margin-right:10px}
@@ -247,6 +273,18 @@ code,pre,kbd,.mono{font-variant-ligatures:none!important;font-feature-settings:"
 .pin-item.open .pin-item-body{max-height:none}
 .pin-item.open .pin-item-body::after{display:none}
 .pin-item .prob-actions{margin-top:8px}
+.mast-due .pin-btn{white-space:nowrap;flex:none}
+.mast-due{display:flex;align-items:center;gap:10px;justify-content:space-between;border:2px solid var(--pop);background:color-mix(in srgb,var(--pop) 10%,var(--panel));border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:13.5px}
+.mast-list{display:flex;flex-direction:column;gap:5px}
+.mast-row{display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 10px;border-radius:9px;background:var(--raise);border:1px solid var(--line)}
+.mast-row b{flex:1;min-width:0;font-weight:600}
+.mchip{font:700 10.5px/1 var(--body);padding:4px 7px;border-radius:6px;white-space:nowrap}
+.mchip.seen{background:var(--wait-soft);color:var(--wait)}
+.mchip.solved{background:var(--accent-soft);color:var(--accent)}
+.mchip.mastered{background:var(--good-soft);color:var(--good)}
+.mdue{font-size:11px;color:var(--faint);white-space:nowrap}
+.mdue.now{color:var(--pop);font-weight:700}
+.statuschip{display:inline-flex;gap:6px;align-items:center;margin:0 0 10px;padding:5px 10px;border-radius:8px;background:var(--raise);border:1px solid var(--line);font-size:12.5px}
 .prob-hist{display:flex;flex-direction:column;gap:6px}
 .prob-hist button{appearance:none;text-align:left;border:1px solid var(--line);background:var(--raise);border-radius:10px;padding:8px 12px;cursor:pointer;color:var(--ink);font-size:13px;display:flex;justify-content:space-between;gap:8px}
 .prob-hist button span{color:var(--faint);font-size:11.5px;white-space:nowrap}
@@ -397,12 +435,31 @@ table.plan tr.past td{color:var(--faint)}
           <b>Python</b><span class="ed-task" id="edTask"></span><span class="ed-hint"><kbd>Tab</kbd> indent · <kbd>Shift</kbd>+<kbd>Tab</kbd> outdent · <kbd>Ctrl</kbd>+<kbd>Enter</kbd> run</span>
           <div class="ed-actions">
             <button type="button" class="ed-run" id="runBtn">▶ Run</button>
+            <button type="button" class="ed-trace" id="traceBtn">⏯ Trace</button>
             <button type="button" class="ed-send" id="sendCode" disabled>Send code + output</button>
             <button type="button" class="ed-x" id="edClose" aria-label="Close editor">×</button>
           </div>
         </div>
         <div class="ed-body"><div class="gutter" id="gutter" aria-hidden="true">1</div><textarea id="code" spellcheck="false" aria-label="Python code editor" wrap="off"></textarea></div>
-        <pre class="ed-out" id="out" aria-live="polite"><span class="muted">Press Run to see your output here.</span></pre>
+        <pre class="ed-out" id="out" aria-live="polite"><span class="muted">Press Run to see your output, or Trace to step through it line by line.</span></pre>
+        <div class="trace" id="tracePanel" hidden>
+          <div class="tr-bar">
+            <button type="button" class="tr-btn" id="trFirst" aria-label="First step">⏮</button>
+            <button type="button" class="tr-btn" id="trPrev" aria-label="Previous step">◀</button>
+            <input type="range" id="trSlider" min="0" max="0" value="0" aria-label="Step">
+            <button type="button" class="tr-btn" id="trNext" aria-label="Next step">▶</button>
+            <button type="button" class="tr-btn" id="trLast" aria-label="Last step">⏭</button>
+            <span class="tr-step" id="trStep">step 0 / 0</span>
+            <label class="tr-predict"><input type="checkbox" id="trPredict"> Predict mode</label>
+            <button type="button" class="tr-btn tr-close" id="trClose" aria-label="Close trace">×</button>
+          </div>
+          <div class="tr-line" id="trLine"></div>
+          <div class="tr-grid">
+            <table class="tr-vars"><thead><tr><th>Variable</th><th>Value</th></tr></thead><tbody id="trVars"></tbody></table>
+            <pre class="tr-out" id="trOut"></pre>
+          </div>
+          <div class="tr-hint" id="trHint"><kbd>←</kbd> <kbd>→</kbd> step · in Predict mode, guess what changed, then click <b>?</b> to reveal</div>
+        </div>
       </div>
       <form class="composer" id="composer">
         <div class="quick" id="quick">
@@ -483,6 +540,14 @@ table.plan tr.past td{color:var(--faint)}
           <button type="button" class="pin-btn" id="probJump">Go to message</button>
           <button type="button" class="pin-btn" id="probUnpin" hidden>Unpin</button>
         </div>
+      </div>
+      <div id="mastWrap" hidden>
+        <p class="label">Mastery · <span id="mastCount"></span></p>
+        <div class="mast-due" id="mastDue" hidden>
+          <b id="mastDueText"></b>
+          <button type="button" class="pin-btn" id="mastStart">Start re-solves</button>
+        </div>
+        <div class="mast-list" id="mastList"></div>
       </div>
       <div id="pinListWrap" hidden>
         <p class="label">📌 Pinned (<span id="pinCount">0</span>), newest first</p>
@@ -665,6 +730,11 @@ table.plan tr.past td{color:var(--faint)}
     const lang = m ? m[1].toLowerCase() : "";
     const code = (m ? raw.slice(m[0].length) : raw).replace(/\n$/, "");
     if (lang === "task") return '<div class="taskcard"><span class="tk-label">📌 Task</span>' + md(lineBreaks(code)) + "</div>";
+    if (lang === "status") {
+      const f = Object.fromEntries([...code.matchAll(/^\s*(\w+)\s*:\s*(.+?)\s*$/gm)].map(x => [x[1].toLowerCase(), x[2]]));
+      const label = { seen: "🟡 seen", solved: "🟢 solved it yourself", resolved: "✅ cold re-solve passed", failed: "🔁 re-solve again tomorrow" }[String(f.result || "").toLowerCase()] || esc(f.result || "");
+      return '<div class="statuschip">📈 Tracker · <b>' + esc(f.problem || "") + "</b> → " + label + "</div>";
+    }
     let html = esc(code);
     if ((lang === "python" || lang === "py") && window.hljs) { try { html = hljs.highlight(code, { language: "python" }).value; } catch (_) {} }
     return '<div class="codebox">' + (lang && lang !== "text" ? '<span class="lang">' + esc(lang) + "</span>" : "") + '<button class="copy" type="button">Copy</button><pre><code>' + html + "</code></pre></div>";
@@ -731,7 +801,7 @@ table.plan tr.past td{color:var(--faint)}
   const openPins = new Set();
   const taskOf = text => { const all = [...String(text || "").matchAll(/```task\n([\s\S]*?)```/g)]; return all.length ? all[all.length - 1][1].trim() : null; };
   const titleOf = t => (t.split("\n").map(x => x.trim()).find(Boolean) || "").replace(/^#+\s*|\*\*/g, "").slice(0, 90);
-  let serverTask = null; // { text, fromId, updatedAt } kept by the server
+  let serverTask = null, problems = {}; // current task and the mastery tracker, both kept by the server
   function currentTask() {
     let fromMsg = null;
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -759,6 +829,25 @@ table.plan tr.past td{color:var(--faint)}
     } else {
       $("tCode").textContent = probToday;
       $("chipCode").textContent = probToday;
+    }
+    // mastery tracker (from the server): due re-solves first, then everything by status
+    const names = Object.keys(problems);
+    $("mastWrap").hidden = !names.length;
+    if (names.length) {
+      const today = key(midnight(new Date()));
+      const order = { seen: 2, solved: 1, mastered: 3 };
+      const due = names.filter(n => problems[n].status !== "seen" && (problems[n].due || "9") <= today);
+      const mastered = names.filter(n => problems[n].status === "mastered").length;
+      const solved = names.filter(n => problems[n].status === "solved").length;
+      $("mastCount").textContent = "✅ " + mastered + " mastered · 🟢 " + solved + " solved · of 150";
+      $("mastDue").hidden = !due.length;
+      $("mastDueText").textContent = due.length + " re-solve" + (due.length > 1 ? "s" : "") + " due: " + due.join(", ");
+      $("mastStart").onclick = () => send("Let's do my due cold re-solves: " + due.join(", ") + ". One at a time, no hints unless I ask.");
+      const dueTxt = p => { if (p.status === "seen") return "not solved yet"; if (!p.due) return ""; const d = Math.round((new Date(p.due + "T00:00") - midnight(new Date())) / DAY); return d <= 0 ? "due now" : "re-solve in " + d + "d"; };
+      $("mastList").innerHTML = names.sort((a, b) => (due.includes(b) - due.includes(a)) || (order[problems[a].status] - order[problems[b].status]) || a.localeCompare(b)).map(n => {
+        const p = problems[n], dt = dueTxt(p);
+        return '<div class="mast-row"><span class="mchip ' + p.status + '">' + ({ seen: "🟡 seen", solved: "🟢 solved", mastered: "✅ mastered" }[p.status] || p.status) + "</span><b>" + esc(n) + '</b><span class="mdue' + (dt === "due now" ? " now" : "") + '">' + esc(dt) + "</span></div>";
+      }).join("");
     }
     // pinned stack: newest pin first
     const pinned = pins.map(id => messages.find(m => m.id === id)).filter(Boolean);
@@ -900,7 +989,8 @@ table.plan tr.past td{color:var(--faint)}
   const STARTER = 'def is_anagram(s, t):\n    # your code\n    pass\n\nprint(is_anagram("listen", "silent"), is_anagram("rat", "car"), is_anagram("ab", "abc"))\n';
   try { code.value = localStorage.getItem("forge27-code") || STARTER; } catch (_) { code.value = STARTER; }
   let lastRun = null;
-  const lines = () => { const n = code.value.split("\n").length; let g = ""; for (let i = 1; i <= n; i++) g += i + "\n"; gutter.textContent = g; gutter.scrollTop = code.scrollTop; };
+  let curLine = 0; // line the tracer is on (0 = none)
+  const lines = () => { const n = code.value.split("\n").length; let g = ""; for (let i = 1; i <= n; i++) g += (i === curLine ? '<span class="cur">' + i + "</span>" : i) + "\n"; gutter.innerHTML = g; gutter.scrollTop = code.scrollTop; };
   const saveCode = () => { try { localStorage.setItem("forge27-code", code.value); } catch (_) {} };
   function openEditor(open) {
     editor.hidden = !open; toggle.setAttribute("aria-pressed", String(open));
@@ -909,7 +999,7 @@ table.plan tr.past td{color:var(--faint)}
   toggle.onclick = () => openEditor(editor.hidden);
   $("edClose").onclick = () => openEditor(false);
   code.addEventListener("scroll", () => { gutter.scrollTop = code.scrollTop; });
-  code.addEventListener("input", () => { lines(); saveCode(); lastRun = null; $("sendCode").disabled = true; });
+  code.addEventListener("input", () => { if (!$("tracePanel").hidden) closeTrace(); lines(); saveCode(); lastRun = null; $("sendCode").disabled = true; });
   const edit = (start, end, text, caret) => { code.setRangeText(text, start, end, "end"); if (caret != null) code.selectionStart = code.selectionEnd = caret; code.dispatchEvent(new Event("input")); };
   code.addEventListener("keydown", e => {
     const v = code.value, s = code.selectionStart, en = code.selectionEnd;
@@ -938,7 +1028,57 @@ table.plan tr.past td{color:var(--faint)}
       if (/^ +$/.test(before) && before.length % 4 === 0) { e.preventDefault(); edit(s - 4, s, ""); }
     }
   });
+  // ---- step tracer: every line, every variable; Predict mode hides what changed until you guess ----
+  let trace = null, tStep = 0;
+  const revealed = new Set();
+  const codeLines = () => code.value.split("\n");
+  function closeTrace() { $("tracePanel").hidden = true; outEl.hidden = false; trace = null; curLine = 0; lines(); }
+  function showStep(i) {
+    if (!trace || !trace.steps.length) return;
+    tStep = Math.max(0, Math.min(trace.steps.length - 1, i));
+    const s = trace.steps[tStep], prev = trace.steps[tStep - 1];
+    // vars after this line ran = the next step's snapshot (the tracer records state *before* each line)
+    const after = (trace.steps[tStep + 1] || s).vars;
+    const before = s.vars;
+    curLine = s.event === "end" ? 0 : s.line; lines();
+    const src = (codeLines()[s.line - 1] || "").trim();
+    const ev = s.event === "return" ? "returns " + (s.ret || "") : s.event === "end" ? "program finished" : s.func ? "in " + s.func + "()" : "";
+    $("trLine").innerHTML = s.event === "end" ? "<b>done</b>" + (trace.error ? " — " + esc(trace.error) : "") : "<b>line " + s.line + "</b>" + esc(src) + '<span class="tr-ev">' + esc(ev) + "</span>";
+    const predict = $("trPredict").checked;
+    const names = [...new Set([...Object.keys(before), ...Object.keys(after)])];
+    $("trVars").innerHTML = names.length ? names.map(n => {
+      const isNew = !(n in before), changed = isNew || before[n] !== after[n];
+      const k = tStep + ":" + n, hide = predict && changed && !revealed.has(k) && s.event !== "end";
+      const val = hide ? '<button type="button" class="tr-q" data-k="' + esc(k) + '" title="Guess first, then click">?</button>' : esc(after[n] ?? "");
+      return '<tr class="' + (changed && s.event !== "end" ? (isNew ? "changed new" : "changed") : "") + '"><td>' + esc(n) + "</td><td>" + val + "</td></tr>";
+    }).join("") : '<tr><td colspan="2" style="color:var(--hl-c)">no variables yet</td></tr>';
+    $("trVars").querySelectorAll(".tr-q").forEach(b => b.onclick = () => { revealed.add(b.dataset.k); showStep(tStep); });
+    const nextOut = (trace.steps[tStep + 1] || s).out;
+    $("trOut").textContent = "output\n" + (nextOut || "(nothing printed yet)");
+    $("trSlider").max = trace.steps.length - 1; $("trSlider").value = tStep;
+    $("trStep").textContent = "step " + (tStep + 1) + " / " + trace.steps.length + (trace.truncated ? " (cut)" : "");
+  }
+  async function doTrace() {
+    outEl.hidden = false; outEl.innerHTML = '<span class="muted">Tracing…</span>';
+    try {
+      const r = await api("/api/trace", { code: code.value });
+      if (!r.steps || !r.steps.length) { outEl.innerHTML = '<span class="err">' + esc(r.error || "Nothing to trace.") + "</span>"; return; }
+      trace = r; revealed.clear(); outEl.hidden = true; $("tracePanel").hidden = false; showStep(0);
+    } catch (_) { outEl.innerHTML = '<span class="err">Couldn\'t reach the server. Restart it and try again.</span>'; }
+  }
+  $("traceBtn").onclick = doTrace;
+  $("trFirst").onclick = () => showStep(0);
+  $("trPrev").onclick = () => showStep(tStep - 1);
+  $("trNext").onclick = () => showStep(tStep + 1);
+  $("trLast").onclick = () => showStep(Infinity);
+  $("trSlider").oninput = e => showStep(+e.target.value);
+  $("trPredict").onchange = () => showStep(tStep);
+  $("trClose").onclick = closeTrace;
+  $("tracePanel").addEventListener("keydown", e => { if (e.key === "ArrowRight") { e.preventDefault(); showStep(tStep + 1); } if (e.key === "ArrowLeft") { e.preventDefault(); showStep(tStep - 1); } });
+  $("tracePanel").tabIndex = 0;
+
   async function run() {
+    if (!$("tracePanel").hidden) closeTrace();
     outEl.innerHTML = '<span class="muted">Running…</span>';
     try {
       const r = await api("/api/run", { code: code.value });
@@ -1020,7 +1160,7 @@ table.plan tr.past td{color:var(--faint)}
       if (!online) { online = true; canSend(); }
       $("conn").innerHTML = '<i class="dot live"></i>Coach connected';
       const m = JSON.stringify(s.messages), d = JSON.stringify(s.days);
-      const tk = JSON.stringify(s.task || null);
+      const tk = JSON.stringify([s.task || null, s.problems || {}]); problems = s.problems || {};
       if (m !== lastM || tk !== lastTk) { lastM = m; lastTk = tk; serverTask = s.task || null; messages = s.messages.slice().sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0)); renderThread(); }
       if (d !== lastD) { lastD = d; days = s.days || {}; renderDay(); renderLog(); }
     } catch (_) {
