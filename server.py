@@ -63,16 +63,17 @@ def transcript(messages, limit=16):
     return "\n\n".join(lines)
 
 
-def coach_reply(state):
-    day = int((time.time() - START) // 86400) + 1
-    prompt = (
-        f"Today is day {day} of 136 of Arun's plan.\n\n"
-        "Here is the recent chat, oldest first. Reply to Arun's latest message(s):\n\n"
-        + transcript(state["messages"])
-    )
-    cmd = [CLAUDE, "-p", "--model", "claude-sonnet-5-5", "--effort", "low", "--output-format", "stream-json", "--verbose",
-           "--include-partial-messages", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}',
-           "--tools", "", "--append-system-prompt-file", str(ROOT / "coach_prompt.md")]
+PROGRESS = ROOT / "progress.md"
+READ_TOKEN = "[[READ_PROGRESS]]"
+WANTS_PROGRESS = re.compile(r"progress|what (have|did) we (do|done|cover)|how am i doing|weak (spot|area)s?|my mistakes|revis|history|so far", re.I)
+MODEL = "claude-sonnet-5-5"
+
+
+def run_claude(prompt, system_file=None, stream=True):
+    cmd = [CLAUDE, "-p", "--model", MODEL, "--effort", "low", "--output-format", "stream-json", "--verbose",
+           "--include-partial-messages", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}', "--tools", ""]
+    if system_file:
+        cmd += ["--append-system-prompt-file", str(system_file)]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                          cwd=str(ROOT), text=True, encoding="utf-8", errors="replace")
     p.stdin.write(prompt)
@@ -87,15 +88,54 @@ def coach_reply(state):
             e = ev.get("event", {})
             if e.get("type") == "message_start":
                 turn_text = ""
-            elif e.get("type") == "content_block_start" and e.get("content_block", {}).get("type") == "tool_use":
-                LIVE["status"] = "Checking with Python…"
             elif e.get("type") == "content_block_delta" and e.get("delta", {}).get("type") == "text_delta":
                 turn_text += e["delta"]["text"]
-                LIVE["text"], LIVE["status"] = turn_text, ""
+                if stream and not READ_TOKEN.startswith(turn_text.strip()[:len(READ_TOKEN)] or "x"):
+                    LIVE["text"], LIVE["status"] = turn_text, ""
         elif ev.get("type") == "result":
             final = ev.get("result")
     p.wait()
-    return verify_outputs((final or turn_text).strip())
+    return (final or turn_text).strip()
+
+
+def update_progress(state):
+    """Re-summarise today's chat into its section of progress.md."""
+    today = time.strftime("%Y-%m-%d")
+    ms = [m for m in state["messages"] if time.strftime("%Y-%m-%d", time.localtime(m["createdAt"] / 1000)) == today]
+    if not ms:
+        return
+    ask = ("Summarise one day of a study chat between ARUN (learner) and COACH, for the coach's long-term memory. "
+           "Strictly factual, only what the transcript shows. Markdown with exactly these headings and terse bullets:\n"
+           "### Solved (the coach confirmed Arun's own working solution; name the problem + approach)\n"
+           "### In progress / not finished (problem + where it stopped)\n### System design covered\n"
+           "### Mistakes that recurred\n### Strengths shown\nWrite '- none' for an empty section. Transcript:\n\n")
+    body = "\n\n".join(("ARUN" if m["role"] == "arun" else "COACH") + ": " + m["text"][:3000] for m in ms)
+    summary = run_claude(ask + body[:350000], stream=False)
+    text = PROGRESS.read_text(encoding="utf-8") if PROGRESS.exists() else "# Arun's progress (Forge 27)\n"
+    section = f"## {today}\n{summary}\n"
+    pattern = re.compile(rf"^## {today}\n.*?(?=^## \d{{4}}-\d\d-\d\d\n|\Z)", re.S | re.M)
+    text = pattern.sub(lambda _: section, text) if pattern.search(text) else text.rstrip() + "\n\n" + section
+    PROGRESS.write_text(text, encoding="utf-8")
+
+
+def coach_reply(state):
+    latest = next((m["text"] for m in reversed(state["messages"]) if m["role"] == "arun"), "")
+    if re.search(r"update (my )?progress", latest, re.I):
+        LIVE["status"] = "Updating your progress file…"
+        update_progress(state)
+    base = (f"Today is day {today_day()} of 136 of Arun's plan.\n\n"
+            "Here is the recent chat, oldest first. Reply to Arun's latest message(s):\n\n" + transcript(state["messages"]))
+    with_progress = lambda: ("Arun's progress file (progress.md), for context:\n\n" + PROGRESS.read_text(encoding="utf-8")
+                             + "\n\n---\n\n" + base) if PROGRESS.exists() else base
+    if WANTS_PROGRESS.search(latest):
+        LIVE["status"] = "Reading your progress…"
+        text = run_claude(with_progress(), ROOT / "coach_prompt.md")
+    else:
+        text = run_claude(base, ROOT / "coach_prompt.md")
+        if text.startswith(READ_TOKEN):  # the coach asked for the history itself
+            LIVE.update(text="", status="Reading your progress…")
+            text = run_claude(with_progress(), ROOT / "coach_prompt.md")
+    return verify_outputs(text.replace(READ_TOKEN, "").strip())
 
 
 PAIR = re.compile(r"```python\n(.*?)```(\s*(?:(?:\*\*)?(?:Real )?[Oo]utput:?(?:\*\*)?\s*)?)```text\n(.*?)```", re.S)
