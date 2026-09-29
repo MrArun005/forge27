@@ -38,6 +38,23 @@ START = time.mktime((2026, 9, 23, 0, 0, 0, 0, 0, -1))
 CLAUDE = shutil.which("claude") or str(Path.home() / ".local" / "bin" / "claude")
 
 
+def today_day():
+    return int((time.time() - START) // 86400) + 1
+
+
+def auto_tick(state, track):
+    """Studying counts: a coding or system design message ticks that track for today."""
+    field = {"code": "code", "sd": "sd"}.get(track)
+    if not field:
+        return
+    r = state.setdefault("days", {}).setdefault(time.strftime("%Y-%m-%d"), {})
+    r["day"] = today_day()
+    if not r.get(field):
+        r[field] = True
+        r.setdefault("auto", []).append(field)
+        r["updatedAt"] = int(time.time() * 1000)
+
+
 def transcript(messages, limit=16):
     lines = []
     for m in messages[-limit:]:
@@ -197,7 +214,7 @@ class Handler(BaseHTTPRequestHandler):
                     "role": body.get("role", "arun"),
                     "text": str(body.get("text", "")),
                     "track": body.get("track", "general"),
-                    "day": body.get("day"),
+                    "day": today_day(),  # the server's clock, never a stale browser tab
                     "createdAt": int(time.time() * 1000),
                 }
                 if body.get("replyTo"):
@@ -207,6 +224,7 @@ class Handler(BaseHTTPRequestHandler):
                             m["status"] = "answered"
                 if msg["role"] == "arun":
                     msg["status"] = "waiting"
+                    auto_tick(state, msg["track"])
                 state["messages"].append(msg)
                 save(state)
                 if msg["role"] == "arun":
