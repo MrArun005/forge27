@@ -53,7 +53,7 @@ def coach_reply(state):
         "Here is the recent chat, oldest first. Reply to Arun's latest message(s):\n\n"
         + transcript(state["messages"])
     )
-    cmd = [CLAUDE, "-p", "--model", "sonnet", "--effort", "low", "--output-format", "stream-json", "--verbose",
+    cmd = [CLAUDE, "-p", "--model", "claude-sonnet-5-5", "--effort", "low", "--output-format", "stream-json", "--verbose",
            "--include-partial-messages", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}',
            "--tools", "", "--append-system-prompt-file", str(ROOT / "coach_prompt.md")]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
