@@ -7,3 +7,4 @@ run_*.py
 __pycache__/
 data.backup-*.json
 progress.md
+coach_quality.log

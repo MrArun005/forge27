@@ -200,16 +200,48 @@ def update_progress(state):
     PROGRESS.write_text(text, encoding="utf-8")
 
 
+SESSION_GAP = 3 * 3600 * 1000  # a gap this long since Arun's previous message starts a new session
+LONG_REPLY = 300               # prose words (code and tables excluded) that trigger one shortening pass
+QUALITY_LOG = ROOT / "coach_quality.log"
+
+
+def prose_words(text):
+    """Words outside code fences and table rows: what the length rule is about."""
+    prose = re.sub(r"```.*?```", " ", text, flags=re.S)
+    prose = "\n".join(l for l in prose.splitlines() if not l.strip().startswith("|"))
+    return len(prose.split())
+
+
+def is_session_start(state):
+    arun = [m for m in state["messages"] if m["role"] == "arun"]
+    if len(arun) < 2:
+        return True
+    return arun[-1].get("createdAt", 0) - arun[-2].get("createdAt", 0) >= SESSION_GAP
+
+
+def log_quality(text, session_start, shortened):
+    try:
+        last = text.rstrip().splitlines()[-1] if text.strip() else ""
+        with QUALITY_LOG.open("a", encoding="utf-8") as f:
+            f.write(json.dumps({"at": int(time.time() * 1000), "words": prose_words(text),
+                                "ends_bold": last.strip().startswith("**") and last.strip().endswith(("**", "**?", "?**")),
+                                "session_start": session_start, "shortened": shortened}) + "\n")
+    except OSError:
+        pass
+
+
 def coach_reply(state):
     latest = next((m["text"] for m in reversed(state["messages"]) if m["role"] == "arun"), "")
     if re.search(r"update (my )?progress", latest, re.I):
         LIVE["status"] = "Updating your progress file…"
         update_progress(state)
+    session_start = is_session_start(state)
     base = (f"Today is day {today_day()} of 136 of Arun's plan.\n" + tracker_line(state) +
+            ("SESSION START: Arun is back after a break. Follow rule 9.\n\n" if session_start else "") +
             "Here is the recent chat, oldest first. Reply to Arun's latest message(s):\n\n" + transcript(state["messages"]))
     with_progress = lambda: ("Arun's progress file (progress.md), for context:\n\n" + PROGRESS.read_text(encoding="utf-8")
                              + "\n\n---\n\n" + base) if PROGRESS.exists() else base
-    if WANTS_PROGRESS.search(latest):
+    if session_start or WANTS_PROGRESS.search(latest):
         LIVE["status"] = "Reading your progress…"
         text = run_claude(with_progress(), ROOT / "coach_prompt.md")
     else:
@@ -217,7 +249,18 @@ def coach_reply(state):
         if text.startswith(READ_TOKEN):  # the coach asked for the history itself
             LIVE.update(text="", status="Reading your progress…")
             text = run_claude(with_progress(), ROOT / "coach_prompt.md")
-    return verify_outputs(text.replace(READ_TOKEN, "").strip())
+    text = text.replace(READ_TOKEN, "").strip()
+    shortened = False
+    if prose_words(text) > LONG_REPLY:  # one guarded shortening pass, only for runaway replies
+        LIVE["status"] = "Tightening the reply…"
+        short = run_claude("Shorten this coaching reply to about 120 words of prose. Keep every code block, "
+                           "task block and status block exactly as they are. Keep the marking (✅/❌) and end with "
+                           "exactly one bolded question. Output only the shortened reply.\n\n" + text,
+                           ROOT / "coach_prompt.md")
+        if short and prose_words(short) < prose_words(text):
+            text, shortened = short, True
+    log_quality(text, session_start, shortened)
+    return verify_outputs(text)
 
 
 PAIR = re.compile(r"```python\n(.*?)```(\s*(?:(?:\*\*)?(?:Real )?[Oo]utput:?(?:\*\*)?\s*)?)```text\n(.*?)```", re.S)
