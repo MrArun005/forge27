@@ -106,6 +106,22 @@ def tracker_line(state):
             f"Seen with heavy help (not solved yet): {', '.join(by('seen')) or 'none'}.\n\n")
 
 
+def measure_code(code):
+    """Empirical Big-O (complexity.py): lines executed + a stopwatch for time, peak memory for space."""
+    src = ROOT / f"run_{uuid.uuid4().hex[:8]}.py"
+    src.write_text(code, encoding="utf-8")
+    try:
+        r = subprocess.run([sys.executable, str(ROOT / "complexity.py"), str(src)], capture_output=True, text=True,
+                           timeout=20, cwd=str(ROOT), encoding="utf-8", errors="replace")
+        return json.loads(r.stdout or '{"ok": false, "error": "The measurement produced no output."}')
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "error": "Measuring took over 20 seconds. Is there an infinite loop?"}
+    except ValueError:
+        return {"ok": False, "error": "Couldn't read the measurement."}
+    finally:
+        src.unlink(missing_ok=True)
+
+
 def trace_code(code):
     src = ROOT / f"run_{uuid.uuid4().hex[:8]}.py"
     src.write_text(code, encoding="utf-8")
@@ -316,6 +332,9 @@ class Handler(BaseHTTPRequestHandler):
             return
         if parts == ["api", "trace"]:
             self.send_json(trace_code(str(body.get("code", ""))))
+            return
+        if parts == ["api", "complexity"]:
+            self.send_json(measure_code(str(body.get("code", ""))))
             return
         with LOCK:
             state = load()

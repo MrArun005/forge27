@@ -42,6 +42,14 @@ Don't skip straight to "solve this".
 
 **3. Tracing: use the app's tracer.** The code editor has a **⏯ Trace** button with a **Predict mode**. It steps line by line and hides changed values until he guesses. Prefer "Trace it in Predict mode; what is `max_count` at the step where `right = 2`?" over long hand-written trace tables. When you do write a table, fill most of it and leave only 1–2 blanks.
 
+The trace panel has a **History table** view: one row per step, one column per variable, with changed cells highlighted and earlier values kept. Point him at it for "watch `left` and `count` across the loop" questions.
+
+**3b. Big-O: predict, then measure.** The editor has a **📈 Big-O** button. Arun picks his time and space guesses, then the app measures his function on growing worst-case inputs. It counts lines executed (and uses a stopwatch to catch work inside built-ins like `set()` or `sorted()`) and measures peak extra memory. It then marks his guesses ✅ or ❌. When he sends a Big-O result:
+- grade his guess
+- explain **why** in terms of the code: which loop runs n times, what data structure grows with n, and what a built-in costs
+- remind him the measurement is evidence, not proof: in an interview he has to reason it out loud
+A measurement can mislead in a few cases: early returns on lucky inputs, the alphabet capping a dict at 26 keys (which really is O(1)), or recursion depth. Point these out when they apply.
+
 **4. Mastery tracking.** After any attempt, add one fenced block marked `status` (the app turns it into a tracker chip and schedules re-solves):
 - line 1: `problem: <exact NeetCode name>`
 - line 2: `result: seen | solved | resolved | failed`

@@ -240,6 +240,39 @@ code,pre,kbd,.mono{font-variant-ligatures:none!important;font-feature-settings:"
 .tr-out{margin:0;font:12.5px/1.5 var(--mono);background:var(--code-bg);border:1px solid var(--code-line);border-radius:6px;padding:6px 10px;white-space:pre-wrap;max-height:130px;overflow:auto}
 .tr-hint{margin-top:6px;font-size:11px;color:var(--hl-c)}
 .tr-hint kbd{font:10.5px var(--mono);border:1px solid var(--code-line);border-radius:4px;padding:0 4px}
+.tr-views{display:inline-flex;gap:3px}
+.tr-views .tr-btn[aria-pressed="true"]{background:var(--sun-a);color:#2a1a00;border-color:var(--sun-a)}
+.tr-hist-wrap{max-height:230px;overflow:auto;border:1px solid var(--code-line);border-radius:6px;background:var(--code-bg)}
+.tr-hist{border-collapse:separate;border-spacing:0;font:12px/1.4 var(--mono);width:max-content;min-width:100%}
+.tr-hist th{position:sticky;top:0;background:var(--code-line);color:var(--hl-f);text-align:left;padding:4px 10px;font-weight:600;z-index:1}
+.tr-hist th.ln,.tr-hist td.ln{color:var(--hl-c);text-align:right}
+.tr-hist td{padding:3px 10px;border-bottom:1px solid var(--code-line);white-space:nowrap;cursor:pointer}
+.tr-hist td.same{color:var(--hl-c);opacity:.55}
+.tr-hist td.chg{color:var(--sun-a);font-weight:700;background:rgba(255,194,61,.1)}
+.tr-hist tr.cur td{background:rgba(143,211,255,.14)}
+.tr-hist tr.cur td.chg{background:rgba(255,194,61,.24)}
+.tr-hist tr:hover td{background:rgba(255,255,255,.05)}
+.tr-hist td.src{color:var(--code-ink);opacity:.8;max-width:34ch;overflow:hidden;text-overflow:ellipsis}
+.tr-out-inline{margin-top:8px;max-height:70px}
+.ed-bigo{background:var(--pop);color:#fff}
+.bigo{border-top:1px solid var(--code-line);background:rgba(0,0,0,.22);padding:10px 16px 14px 28px;color:var(--code-ink);max-height:48vh;overflow:auto}
+.bigo-title{color:var(--hl-n)}
+.bigo-sub{font-size:12px;color:var(--hl-c)}
+.bigo-guess{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.bigo-guess label{font-size:12.5px;display:flex;gap:6px;align-items:center}
+.bigo-guess select{background:var(--code-bg);color:var(--code-ink);border:1px solid var(--code-line);border-radius:6px;padding:4px 6px;font:12.5px var(--mono)}
+.bo-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bo-card{border:1px solid var(--code-line);background:var(--code-bg);border-radius:10px;padding:10px 12px}
+.bo-card .k{font:600 10.5px var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--hl-c)}
+.bo-card .v{font:800 22px/1.2 var(--mono);color:var(--sun-a);margin:3px 0}
+.bo-card .why{font-size:12px;color:var(--code-ink);opacity:.85}
+.bo-card .mark{font-size:12.5px;margin-top:4px}
+.bo-table{margin-top:10px;border-collapse:collapse;font:11.5px var(--mono)}
+.bo-table th,.bo-table td{padding:2px 10px;text-align:right;border-bottom:1px solid var(--code-line)}
+.bo-table th{color:var(--hl-c);font-weight:600}
+.bo-bar{display:inline-block;height:7px;border-radius:2px;background:var(--hl-f);vertical-align:middle}
+.bo-note{font-size:11.5px;color:var(--hl-c);margin-top:8px;max-width:80ch}
+.bo-actions{margin-top:10px;display:flex;gap:8px}
 .gutter .cur{color:var(--sun-a);font-weight:700}
 .gutter .cur::before{content:"▶ ";}
 .ed-out{margin:0;border-top:1px solid var(--code-line);padding:10px 28px;max-height:170px;overflow:auto;font:13px/1.55 var(--mono);white-space:pre-wrap;background:rgba(0,0,0,.18)}
@@ -436,6 +469,7 @@ table.plan tr.past td{color:var(--faint)}
           <div class="ed-actions">
             <button type="button" class="ed-run" id="runBtn">▶ Run</button>
             <button type="button" class="ed-trace" id="traceBtn">⏯ Trace</button>
+            <button type="button" class="ed-bigo" id="bigoBtn">📈 Big-O</button>
             <button type="button" class="ed-send" id="sendCode" disabled>Send code + output</button>
             <button type="button" class="ed-x" id="edClose" aria-label="Close editor">×</button>
           </div>
@@ -451,14 +485,35 @@ table.plan tr.past td{color:var(--faint)}
             <button type="button" class="tr-btn" id="trLast" aria-label="Last step">⏭</button>
             <span class="tr-step" id="trStep">step 0 / 0</span>
             <label class="tr-predict"><input type="checkbox" id="trPredict"> Predict mode</label>
+            <span class="tr-views" role="group" aria-label="Trace view">
+              <button type="button" class="tr-btn" id="trViewVars" aria-pressed="false">Variables</button>
+              <button type="button" class="tr-btn" id="trViewTable" aria-pressed="true">History table</button>
+            </span>
             <button type="button" class="tr-btn tr-close" id="trClose" aria-label="Close trace">×</button>
           </div>
           <div class="tr-line" id="trLine"></div>
-          <div class="tr-grid">
+          <div class="tr-grid" id="trGrid" hidden>
             <table class="tr-vars"><thead><tr><th>Variable</th><th>Value</th></tr></thead><tbody id="trVars"></tbody></table>
             <pre class="tr-out" id="trOut"></pre>
           </div>
-          <div class="tr-hint" id="trHint"><kbd>←</kbd> <kbd>→</kbd> step · in Predict mode, guess what changed, then click <b>?</b> to reveal</div>
+          <div class="tr-hist-wrap" id="trHistWrap">
+            <table class="tr-hist" id="trHist"></table>
+          </div>
+          <pre class="tr-out tr-out-inline" id="trOut2"></pre>
+          <div class="tr-hint" id="trHint"><kbd>←</kbd> <kbd>→</kbd> step · click a row to jump · in Predict mode, guess what changed, then click <b>?</b> to reveal</div>
+        </div>
+        <div class="bigo" id="bigoPanel" hidden>
+          <div class="tr-bar">
+            <b class="bigo-title">📈 Big-O check</b>
+            <span class="bigo-sub">Predict first, then measure</span>
+            <button type="button" class="tr-btn tr-close" id="boClose" aria-label="Close Big-O check">×</button>
+          </div>
+          <div class="bigo-guess">
+            <label>Your time guess <select id="boGuessT"><option value="">choose…</option></select></label>
+            <label>Your space guess <select id="boGuessS"><option value="">choose…</option></select></label>
+            <button type="button" class="ed-run" id="boMeasure">Measure</button>
+          </div>
+          <div id="boResult"></div>
         </div>
       </div>
       <form class="composer" id="composer">
@@ -1032,7 +1087,10 @@ table.plan tr.past td{color:var(--faint)}
   let trace = null, tStep = 0;
   const revealed = new Set();
   const codeLines = () => code.value.split("\n");
-  function closeTrace() { $("tracePanel").hidden = true; outEl.hidden = false; trace = null; curLine = 0; lines(); }
+  function closeTrace() {
+    $("tracePanel").hidden = true; outEl.hidden = false; trace = null; curLine = 0; lines();
+    outEl.innerHTML = '<span class="muted">Press Run to see your output, Trace to step through it, or Big-O to measure it.</span>';
+  }
   function showStep(i) {
     if (!trace || !trace.steps.length) return;
     tStep = Math.max(0, Math.min(trace.steps.length - 1, i));
@@ -1055,9 +1113,90 @@ table.plan tr.past td{color:var(--faint)}
     $("trVars").querySelectorAll(".tr-q").forEach(b => b.onclick = () => { revealed.add(b.dataset.k); showStep(tStep); });
     const nextOut = (trace.steps[tStep + 1] || s).out;
     $("trOut").textContent = "output\n" + (nextOut || "(nothing printed yet)");
+    $("trOut2").textContent = "output\n" + (nextOut || "(nothing printed yet)");
     $("trSlider").max = trace.steps.length - 1; $("trSlider").value = tStep;
     $("trStep").textContent = "step " + (tStep + 1) + " / " + trace.steps.length + (trace.truncated ? " (cut)" : "");
+    renderHistory(predict);
   }
+  // history table: one row per step taken so far, one column per variable; earlier values stay visible
+  let traceView = "table";
+  try { traceView = localStorage.getItem("forge27-traceview") || "table"; } catch (_) {}
+  function renderHistory(predict) {
+    const steps = trace.steps, cols = [];
+    steps.forEach(st => Object.keys(st.vars).forEach(k => { if (!cols.includes(k)) cols.push(k); }));
+    const funcs = new Set(steps.map(st => st.func).filter(Boolean));
+    const showFunc = funcs.size > 1;
+    const src = codeLines();
+    let head = '<thead><tr><th class="ln">#</th><th class="ln">line</th>' + (showFunc ? "<th>in</th>" : "") + "<th>code</th>" + cols.map(c => "<th>" + esc(c) + "</th>").join("") + "</tr></thead>";
+    let body = "";
+    const last = Math.min(tStep, steps.length - 1);
+    for (let i = 0; i <= last; i++) {
+      const st = steps[i];
+      if (st.event === "end") continue;
+      const before = st.vars, after = (steps[i + 1] || st).vars;
+      const codeTxt = st.event === "return" ? "return → " + (st.ret || "") : (src[st.line - 1] || "").trim();
+      body += '<tr data-i="' + i + '" class="' + (i === tStep ? "cur" : "") + '"><td class="ln">' + (i + 1) + '</td><td class="ln">' + st.line + "</td>" + (showFunc ? "<td>" + esc(st.func || "") + "</td>" : "") + '<td class="src">' + esc(codeTxt) + "</td>";
+      body += cols.map(c => {
+        if (!(c in after)) return "<td></td>";
+        const changed = !(c in before) || before[c] !== after[c];
+        const k = i + ":" + c;
+        if (i === tStep && predict && changed && !revealed.has(k)) return '<td class="chg"><button type="button" class="tr-q" data-k="' + esc(k) + '">?</button></td>';
+        return '<td class="' + (changed ? "chg" : "same") + '">' + esc(after[c]) + "</td>";
+      }).join("") + "</tr>";
+    }
+    $("trHist").innerHTML = head + "<tbody>" + body + "</tbody>";
+    $("trHist").querySelectorAll("tr[data-i]").forEach(tr => tr.onclick = e => { if (!e.target.closest(".tr-q")) showStep(+tr.dataset.i); });
+    $("trHist").querySelectorAll(".tr-q").forEach(b => b.onclick = () => { revealed.add(b.dataset.k); showStep(tStep); });
+    const cur = $("trHist").querySelector("tr.cur");
+    if (cur) cur.scrollIntoView({ block: "nearest" });
+    const table = traceView === "table";
+    $("trHistWrap").hidden = !table; $("trOut2").hidden = !table; $("trGrid").hidden = table;
+    $("trViewTable").setAttribute("aria-pressed", String(table)); $("trViewVars").setAttribute("aria-pressed", String(!table));
+  }
+  const setView = v => { traceView = v; try { localStorage.setItem("forge27-traceview", v); } catch (_) {} if (trace) showStep(tStep); };
+  $("trViewTable").onclick = () => setView("table");
+  $("trViewVars").onclick = () => setView("vars");
+
+  // ---- Big-O check: predict time and space, then measure them on growing inputs ----
+  const BIG = ["O(1)", "O(log n)", "O(n)", "O(n log n)", "O(n²)", "O(n³)", "O(2ⁿ)"];
+  ["boGuessT", "boGuessS"].forEach(id => BIG.forEach(c => { const o = document.createElement("option"); o.value = o.textContent = c; $(id).appendChild(o); }));
+  let lastBigO = null;
+  $("bigoBtn").onclick = () => {
+    if (!$("tracePanel").hidden) closeTrace();
+    const open = $("bigoPanel").hidden;
+    $("bigoPanel").hidden = !open;
+    if (open) { $("boResult").innerHTML = ""; lastBigO = null; }
+  };
+  $("boClose").onclick = () => { $("bigoPanel").hidden = true; };
+  const fmtBytes = b => b >= 1024 ? (b / 1024).toFixed(1) + " KB" : b + " B";
+  $("boMeasure").onclick = async () => {
+    const gT = $("boGuessT").value, gS = $("boGuessS").value;
+    if (!gT || !gS) { $("boResult").innerHTML = '<p class="bo-note" style="color:var(--hl-n)">Pick both guesses first. Predicting is the point. 😉</p>'; return; }
+    $("boResult").innerHTML = '<p class="bo-note">Measuring on growing inputs… (a few seconds)</p>';
+    let r;
+    try { r = await api("/api/complexity", { code: code.value }); } catch (_) { $("boResult").innerHTML = '<p class="bo-note err">Couldn\'t reach the server.</p>'; return; }
+    if (!r.ok) { $("boResult").innerHTML = '<p class="bo-note err">' + esc(r.error || "Couldn't measure this code.") + "</p>"; return; }
+    lastBigO = { r, gT, gS };
+    const mark = (g, v) => g === v ? '<div class="mark">✅ you guessed ' + esc(g) + "</div>" : '<div class="mark">❌ you guessed ' + esc(g) + "</div>";
+    const tWhy = r.hidden_work
+      ? "The line count barely grows, but the run time does, so the work is happening inside a built-in (like <code>set()</code>, <code>sorted()</code> or <code>x in list</code>)."
+      : "When n doubled, the lines executed grew about ×" + (r.doubling.time ?? "?") + ".";
+    const sWhy = r.space === "O(1)" ? "Extra memory stayed flat as n grew." : "When n doubled, peak extra memory grew about ×" + (r.doubling.space ?? "?") + ".";
+    const maxSteps = Math.max(...r.steps), maxPeak = Math.max(...r.peak_bytes);
+    const rows = r.n.map((n, i) => "<tr><td>" + n + "</td><td>" + r.steps[i].toLocaleString() + ' <span class="bo-bar" style="width:' + Math.max(2, 70 * r.steps[i] / maxSteps) + 'px"></span></td><td>' + fmtBytes(r.peak_bytes[i]) + ' <span class="bo-bar" style="background:var(--hl-s);width:' + Math.max(2, 70 * r.peak_bytes[i] / maxPeak) + 'px"></span></td></tr>').join("");
+    $("boResult").innerHTML =
+      '<div class="bo-cards"><div class="bo-card"><div class="k">Time · ' + esc(r.function) + "()</div><div class=\"v\">" + esc(r.time) + '</div><div class="why">' + tWhy + "</div>" + mark(gT, r.time) + "</div>" +
+      '<div class="bo-card"><div class="k">Extra space</div><div class="v">' + esc(r.space) + '</div><div class="why">' + sWhy + "</div>" + mark(gS, r.space) + "</div></div>" +
+      '<table class="bo-table"><thead><tr><th>n</th><th>lines executed</th><th>peak extra memory</th></tr></thead><tbody>' + rows + "</tbody></table>" +
+      '<p class="bo-note">Measured by running <code>' + esc(r.function) + "()</code> on generated worst-case inputs (growing " + esc((r.scaled || []).join(", ")) + ": distinct numbers, no matching pair). " +
+      "It's strong evidence, not a proof. In an interview you still explain the <b>why</b>: which loop runs n times, and what grows with n." + (r.note ? " " + esc(r.note) : "") + "</p>" +
+      '<div class="bo-actions"><button type="button" class="ed-send" id="boSend">Send result to coach</button></div>';
+    $("boSend").onclick = () => {
+      const x = lastBigO; if (!x) return;
+      send("Big-O check for my " + x.r.function + "():\n- My guess: time " + x.gT + ", space " + x.gS + "\n- Measured: time " + x.r.time + ", space " + x.r.space +
+        (x.r.hidden_work ? " (work inside a built-in)" : "") + "\n\n```python\n" + code.value.replace(/\s+$/, "") + "\n```\n\nExplain why it is " + x.r.time + " and " + x.r.space + ", and grade my guess.");
+    };
+  };
   async function doTrace() {
     outEl.hidden = false; outEl.innerHTML = '<span class="muted">Tracing…</span>';
     try {
