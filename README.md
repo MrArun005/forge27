@@ -4,6 +4,19 @@ Forge is a local web app for DSA and system design interview prep. A live AI coa
 
 Everything runs on your machine. Your chat, progress and code stay in `~/.forge`.
 
+![The Forge coach marking a solution, with the current problem and mastery tracker on the right](docs/screenshots/coach.png)
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Step tracer with history table](docs/screenshots/trace.png) **⏯ Trace:** one row per step, one column per variable, with changes highlighted. Predict mode hides each change until you guess. | ![Big-O check](docs/screenshots/big-o.png) **📈 Big-O:** guess first, then Forge measures your function on growing worst-case inputs and grades you. |
+| ![Onboarding form](docs/screenshots/onboarding.png) **One-minute setup:** your deadline, level and weak spots shape the plan and the coach. | ![Today panel](docs/screenshots/today.png) **Today:** a countdown, today's two tasks, the streak and this week's reading. |
+| ![Plan](docs/screenshots/plan.png) **Your plan:** NeetCode 150 plus system design, spread across your own deadline. | ![Streak log](docs/screenshots/streak.png) **Streak:** every day of your plan on one grid. |
+| ![Night palette](docs/screenshots/night.png) **Four palettes:** Sunny, Candy, Ocean and Night. | ![Phone layout](docs/screenshots/mobile.png) **Works on a phone** too. |
+
+*The screenshots use demo data. Run `python scripts/demo_data.py demo` and start with `FORGE_DATA=demo` to explore it yourself.*
+
 ## What you get
 
 - **A live coach** that streams its replies and follows 9 teaching rules:

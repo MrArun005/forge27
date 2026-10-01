@@ -85,7 +85,7 @@ body.resizing{cursor:col-resize;user-select:none}
 /* rail */
 .rail{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px}
 .logo{font:800 17px/1 var(--display);letter-spacing:-.03em;margin-bottom:18px;text-align:center}
-.logo span{display:block;font-size:24px;background:linear-gradient(135deg,var(--sun-a),var(--sun-b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo span{display:grid;place-items:center;width:30px;height:30px;margin:8px auto 0;border-radius:50%;font:800 14px/1 var(--display);color:#fff;background:linear-gradient(135deg,var(--sun-a),var(--sun-b));box-shadow:0 3px 10px -3px var(--sun-b)}
 .rail button.nav{appearance:none;border:0;background:none;width:60px;padding:10px 0 8px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);cursor:pointer;font-size:11px;font-weight:500;position:relative}
 .rail button.nav svg{width:22px;height:22px}
 .rail button.nav:hover{background:var(--raise);color:var(--ink)}
@@ -128,6 +128,10 @@ code,pre,kbd,.mono{font-variant-ligatures:none!important;font-feature-settings:"
 .me-wrap{max-width:min(620px,85%);display:flex;flex-direction:column;align-items:flex-end;gap:5px}
 .me-bubble{background:var(--me);color:var(--me-ink);padding:10px 14px;border-radius:16px 4px 16px 16px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px}
 .me-bubble pre{white-space:pre;background:rgba(0,0,0,.25);color:inherit;padding:8px 10px;border-radius:8px;overflow-x:auto;margin:6px 0 0;font:13px/1.5 var(--mono)}
+.me-bubble.has-code{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-right:4px solid var(--me);white-space:normal;width:min(640px,100%)}
+.me-bubble.has-code .codebox{margin:8px 0}
+.me-bubble.has-code .codebox:last-child{margin-bottom:0}
+.me-bubble .me-text{white-space:pre-wrap}
 .me-meta{font-size:11.5px;color:var(--faint);display:flex;gap:8px;align-items:center}
 .state{font-weight:600}
 .state.wait{color:var(--wait)} .state.done{color:var(--good)}
@@ -332,7 +336,7 @@ code,pre,kbd,.mono{font-variant-ligatures:none!important;font-feature-settings:"
 .mchip.mastered{background:var(--good-soft);color:var(--good)}
 .mdue{font-size:11px;color:var(--faint);white-space:nowrap}
 .mdue.now{color:var(--pop);font-weight:700}
-.statuschip{display:inline-flex;gap:6px;align-items:center;margin:0 0 10px;padding:5px 10px;border-radius:8px;background:var(--raise);border:1px solid var(--line);font-size:12.5px}
+.statuschip{display:inline-block;line-height:1.5;margin:0 0 10px;padding:5px 10px;border-radius:8px;background:var(--raise);border:1px solid var(--line);font-size:12.5px}
 .prob-hist{display:flex;flex-direction:column;gap:6px}
 .prob-hist button{appearance:none;text-align:left;border:1px solid var(--line);background:var(--raise);border-radius:10px;padding:8px 12px;cursor:pointer;color:var(--ink);font-size:13px;display:flex;justify-content:space-between;gap:8px}
 .prob-hist button span{color:var(--faint);font-size:11.5px;white-space:nowrap}
@@ -399,9 +403,12 @@ table.plan tr.past td{color:var(--faint)}
 .stat b{display:block;font:800 34px/1 var(--display);font-variant-numeric:tabular-nums}
 .stat span{font-size:12.5px;color:var(--muted)}
 .heat-wrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
-.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,18px);grid-auto-columns:18px;gap:5px;width:max-content}
-.cell{width:18px;height:18px;border-radius:5px;background:var(--cell-0)}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,auto);grid-auto-columns:minmax(12px,1fr);gap:clamp(3px,.5vw,6px);width:100%;max-width:calc(var(--weeks,20) * 44px)}
+.heat-axis{position:relative;min-height:34px;display:flex;justify-content:space-between;align-items:flex-start;width:100%;max-width:calc(var(--weeks,20) * 44px);margin-top:8px;font:600 11px var(--body);color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
+.cell{width:100%;aspect-ratio:1;border-radius:22%;background:var(--cell-0)}
+.legend .cell{width:12px;height:12px;aspect-ratio:auto}
 .cell.l1{background:var(--cell-1)} .cell.l2{background:var(--cell-2)}
+.axis-today{position:absolute;top:17px;transform:translateX(-50%);color:var(--ember);white-space:nowrap}
 .cell.today{outline:2px solid var(--ember);outline-offset:1px} .cell.future{opacity:.4}
 .legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:14px;flex-wrap:wrap}
 .legend .cell{display:inline-block;width:12px;height:12px;vertical-align:-1px;margin-right:5px}
@@ -422,6 +429,18 @@ table.plan tr.past td{color:var(--faint)}
   .composer{padding:10px 16px 12px}
   .page{padding:18px 16px}
   .avatar{display:none}
+  .pinbar{padding:8px 16px}
+  .pin-src,#pinJump{display:none}
+  .pinbar:not(.open) .pin-body{display:none}
+  .pin-title{font-size:14px}
+  .quick{flex-wrap:nowrap;overflow-x:auto;margin-bottom:8px;scrollbar-width:none}
+  .quick button{flex:none;padding:5px 10px;font-size:12.5px}
+  .hint{font-size:0}
+  .hint kbd{display:none}
+  .code-toggle{font-size:12px;margin:0}
+  .track button{padding:5px 8px;font-size:12px}
+  .coach-card{padding:12px 14px}
+  .heat-wrap{padding:12px}
 }
 .today-toggle{display:none;appearance:none;border:1px solid var(--line);background:var(--raise);border-radius:10px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer;margin-left:8px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -557,9 +576,9 @@ table.plan tr.past td{color:var(--faint)}
 
     <section class="view" id="view-plan" hidden>
       <div class="scroll"><div class="page">
-        <div><h2 id="planTitle">Your plan, both tracks, every day</h2><p class="lede">This week is highlighted. Coding follows the NeetCode 150 order.</p></div>
+        <div><h2 id="planTitle">Your plan, both tracks, every day</h2><p class="lede" id="planLede">The current step is highlighted.</p></div>
         <div class="tablewrap"><table class="plan">
-          <thead><tr><th>Week</th><th>Starts</th><th>Coding</th><th>System design</th></tr></thead>
+          <thead><tr><th>Step</th><th>Starts</th><th>Coding</th><th>System design</th></tr></thead>
           <tbody id="planBody"></tbody>
         </table></div>
         <div class="res">
@@ -582,7 +601,7 @@ table.plan tr.past td{color:var(--faint)}
           <div class="stat"><b id="sBoth">0</b><span>days with both tracks</span></div>
           <div class="stat"><b id="sAsked">0</b><span>messages to coach</span></div>
         </div>
-        <div class="heat-wrap"><div class="heat" id="heat" role="img" aria-label="Activity grid, one column per week"></div>
+        <div class="heat-wrap"><div class="heat" id="heat" role="img" aria-label="Activity grid, one column per week"></div><div class="heat-axis" id="heatAxis"></div>
           <div class="legend"><span><i class="cell"></i>Nothing</span><span><i class="cell l1"></i>One track</span><span><i class="cell l2"></i>Both tracks</span><span><i class="cell today"></i>Today</span></div>
         </div>
       </div></div>
@@ -805,15 +824,15 @@ table.plan tr.past td{color:var(--faint)}
   $("tSDHow").innerHTML = 'On <a href="' + src[1] + '" target="_blank" rel="noopener">' + src[0] + "</a>. Read, then write your line.";
   $("weekList").innerHTML = sdList.map((s, i) => '<div class="' + (i === dIdx % sdList.length ? "now" : "") + '"><span>' + (i + 1) + "</span>" + s.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</div>").join("");
   $("deadlineLine").textContent = ((PROFILE && PROFILE.deadlineLabel) || "until your deadline") + " on " + END.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
-  $("planTitle").textContent = NWEEKS + " weeks, both tracks, every day";
+  $("planTitle").textContent = NWEEKS + "-week plan, both tracks, every day"; $("planLede").textContent = WEEKS.length + " steps spread evenly from " + fmt(START) + " to " + fmt(END) + ". The current step is highlighted.";
   $("logLede").textContent = "Each square is one day between " + fmt(START) + " and " + fmt(END) + ". Tick both tasks to fill it.";
-  $("logoMark").textContent = PROFILE && PROFILE.name ? PROFILE.name.trim()[0].toUpperCase() : "·";
+  $("logoMark").textContent = PROFILE && PROFILE.name ? PROFILE.name.trim()[0].toUpperCase() : "·"; $("logoMark").title = (PROFILE && PROFILE.name) || "";
   // the plan's weeks are stretched or squeezed onto the learner's own timeline
   WEEKS.forEach(([c, s], i) => {
     const tr = document.createElement("tr"), w = i + 1;
     if (i === planWeek) tr.className = "now"; else if (i < planWeek) tr.className = "past";
-    const startsWeek = Math.floor(i * NWEEKS / WEEKS.length);
-    [["wk", "W" + pad(w)], ["", fmt(new Date(START.getTime() + startsWeek * 7 * DAY))], ["", c], ["", s.join(" · ")]].forEach(([cls, t]) => {
+    const startsDay = Math.round(i * TOTAL / WEEKS.length);
+    [["wk", pad(w)], ["", fmt(new Date(START.getTime() + startsDay * DAY))], ["", c], ["", s.join(" · ")]].forEach(([cls, t]) => {
       const td = document.createElement("td"); if (cls) td.className = cls; td.textContent = t; tr.appendChild(td);
     });
     $("planBody").appendChild(tr);
@@ -884,8 +903,12 @@ table.plan tr.past td{color:var(--faint)}
     });
     return out;
   }
-  function plain(src) { // the learner's own text: keep their line breaks, fence code
-    return String(src || "").split(/```/).map((p, i) => i % 2 ? "<pre>" + esc(p.replace(/^[a-zA-Z0-9]*\n/, "").replace(/\n$/, "")) + "</pre>" : esc(p)).join("");
+  function plain(src) { // the learner's own text: keep their line breaks; fenced code gets a real code box
+    return String(src || "").split(/```/).map((p, i) => {
+      if (i % 2) return codeBlock(p);
+      const t = p.replace(/^\n+|\n+$/g, "");
+      return t ? '<div class="me-text">' + esc(t) + "</div>" : "";
+    }).join("");
   }
 
   // thread
@@ -989,7 +1012,7 @@ table.plan tr.past td{color:var(--faint)}
     if (!t) { $("edTask").textContent = ""; return; }
     $("pinTitle").textContent = titleOf(t.text);
     $("pinSrc").textContent = pins.length ? "set by coach · " + pins.length + " pinned in the Problem tab" : "set by coach";
-    $("pinBody").innerHTML = md(lineBreaks(t.text));
+    $("pinBody").innerHTML = md(lineBreaks(t.text.split("\n").slice(1).join("\n") || t.text));
     bar.classList.toggle("open", pinOpen);
     $("pinToggle").textContent = pinOpen ? "Show less" : "Show all";
     $("pinJump").onclick = () => {
@@ -1044,7 +1067,7 @@ table.plan tr.past td{color:var(--faint)}
       const tg = '<span class="tag ' + (m.track || "general") + '">' + trackName(m.track) + "</span>";
       if (isMe(m)) {
         const w = isWaiting(m);
-        html += '<div class="msg me-row"><div class="me-wrap"><div class="me-bubble">' + plain(m.text) + '</div><div class="me-meta">' + tg + "<span>" + timeStr(m.createdAt) + '</span><span class="state ' + (w ? "wait" : "done") + '">' + (w ? "Sent" : "Answered") + "</span></div></div></div>";
+        html += '<div class="msg me-row"><div class="me-wrap"><div class="me-bubble' + (/```/.test(m.text || "") ? " has-code" : "") + '">' + plain(m.text) + '</div><div class="me-meta">' + tg + "<span>" + timeStr(m.createdAt) + '</span><span class="state ' + (w ? "wait" : "done") + '">' + (w ? "Sent" : "Answered") + "</span></div></div></div>";
       } else {
         const pinned = isPinned(m.id);
         html += '<div class="msg" id="m-' + m.id + '"><div class="avatar" aria-hidden="true">C</div><div class="coach-card' + (pinned ? " is-pinned" : "") + '"><div class="meta"><b>Coach</b>' + tg + "<span>" + timeStr(m.createdAt) + '</span><button type="button" class="pinbtn" data-pin="' + m.id + '">' + (pinned ? "📌 Pinned" : "📌 Pin") + '</button></div><div class="md">' + md(m.text) + "</div></div></div>";
@@ -1318,7 +1341,13 @@ table.plan tr.past td{color:var(--faint)}
       if (l) active++; if (l === 2) both++;
       h += '<i class="cell' + (l ? " l" + l : "") + (k === todayKey ? " today" : "") + (midnight(d) > today ? " future" : "") + '" title="' + fmt(d) + '"></i>';
     }
-    heat.innerHTML = h;
+    heat.innerHTML = h; heat.style.setProperty("--weeks", NWEEKS + 1);
+    $("heatAxis").style.setProperty("--weeks", NWEEKS + 1);
+    // the "today" label sits under today's column (columns = weeks, offset by the first week's start weekday)
+    const cols = Math.ceil((START.getDay() + TOTAL) / 7), todayCol = Math.floor((START.getDay() + dayNum - 1) / 7);
+    const pct = Math.min(88, Math.max(12, (todayCol + 0.5) / cols * 100));
+    $("heatAxis").innerHTML = "<span>" + fmt(START) + " · week 1</span>" +
+      '<span class="axis-today" style="left:' + pct.toFixed(1) + '%">▲ today · week ' + weekNum + "</span><span>" + fmt(END) + " · week " + NWEEKS + "</span>";
     let streak = 0, cur = new Date(today);
     if (!lvlOf(key(cur))) cur = new Date(cur.getTime() - DAY);
     while (cur >= START && lvlOf(key(cur))) { streak++; cur = new Date(cur.getTime() - DAY); }
