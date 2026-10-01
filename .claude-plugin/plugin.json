@@ -1,0 +1,10 @@
+{
+  "name": "forge",
+  "displayName": "Forge",
+  "version": "0.1.0",
+  "description": "A local DSA + system design interview coach: live AI coach on your own Claude Code login, a Python runner, a step tracer with a history table, measured Big-O, spaced re-solves and a mastery tracker.",
+  "author": { "name": "Arun Mallikarjuna", "url": "https://github.com/MrArun005" },
+  "repository": "https://github.com/MrArun005/forge27",
+  "license": "MIT",
+  "keywords": ["interview", "dsa", "leetcode", "neetcode", "system-design", "coach", "learning"]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "forge-coach",
+  "description": "Forge: a local interview-prep coach for Claude Code",
+  "owner": { "name": "Arun Mallikarjuna", "url": "https://github.com/MrArun005" },
+  "plugins": [
+    {
+      "name": "forge",
+      "source": "./",
+      "description": "Local DSA + system design coach with a live AI tutor, tracer, Big-O check and spaced re-solves"
+    }
+  ]
+}

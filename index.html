@@ -2,7 +2,7 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Forge 27</title>
+<title>Forge</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -307,6 +307,21 @@ code,pre,kbd,.mono{font-variant-ligatures:none!important;font-feature-settings:"
 .pin-item.open .pin-item-body::after{display:none}
 .pin-item .prob-actions{margin-top:8px}
 .mast-due .pin-btn{white-space:nowrap;flex:none}
+.onboard{position:fixed;inset:0;z-index:60;background:color-mix(in srgb,var(--ink) 55%,transparent);display:grid;place-items:center;padding:16px;overflow:auto}
+.ob-card{width:min(760px,100%);background:var(--panel);border-radius:18px;box-shadow:var(--shadow);padding:26px 28px;border-top:5px solid var(--accent)}
+.ob-logo{font:800 14px var(--display);color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
+.ob-head h2{font:800 26px/1.2 var(--display);margin:6px 0 6px;letter-spacing:-.02em}
+.ob-head p{margin:0 0 18px;color:var(--muted)}
+.ob-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.ob-grid label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--ink)}
+.ob-grid .wide{grid-column:1/-1}
+.ob-grid input,.ob-grid select,.ob-grid textarea{font:14px var(--body);color:var(--ink);background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-weight:400}
+.ob-grid input:focus,.ob-grid select:focus,.ob-grid textarea:focus{outline:2px solid var(--accent);border-color:transparent}
+.ob-err{color:var(--pop);font-size:13px;min-height:1.2em;margin:10px 0 0}
+.ob-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:8px}
+.ob-foot span{font-size:12px;color:var(--faint);max-width:52ch}
+.ob-go{width:auto;padding:0 20px;font:700 14px var(--body)}
+@media (max-width:640px){.ob-grid{grid-template-columns:1fr}}
 .mast-due{display:flex;align-items:center;gap:10px;justify-content:space-between;border:2px solid var(--pop);background:color-mix(in srgb,var(--pop) 10%,var(--panel));border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:13.5px}
 .mast-list{display:flex;flex-direction:column;gap:5px}
 .mast-row{display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 10px;border-radius:9px;background:var(--raise);border:1px solid var(--line)}
@@ -414,7 +429,7 @@ table.plan tr.past td{color:var(--faint)}
 
 <div class="app">
   <nav class="rail" aria-label="Views">
-    <div class="logo">Forge<span>27</span></div>
+    <div class="logo">Forge<span id="logoMark">·</span></div>
     <button class="nav" id="nav-coach" data-view="coach" aria-current="page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/><path d="M8.5 11h7M8.5 14.5h4"/></svg>
       Coach<span class="badge" id="badge" hidden>0</span>
@@ -542,7 +557,7 @@ table.plan tr.past td{color:var(--faint)}
 
     <section class="view" id="view-plan" hidden>
       <div class="scroll"><div class="page">
-        <div><h2>19 weeks, both tracks, every day</h2><p class="lede">This week is highlighted. Coding follows the NeetCode 150 order, in Python.</p></div>
+        <div><h2 id="planTitle">Your plan, both tracks, every day</h2><p class="lede">This week is highlighted. Coding follows the NeetCode 150 order.</p></div>
         <div class="tablewrap"><table class="plan">
           <thead><tr><th>Week</th><th>Starts</th><th>Coding</th><th>System design</th></tr></thead>
           <tbody id="planBody"></tbody>
@@ -560,7 +575,7 @@ table.plan tr.past td{color:var(--faint)}
 
     <section class="view" id="view-log" hidden>
       <div class="scroll"><div class="page">
-        <div><h2>Never miss twice</h2><p class="lede">Each square is one day between 23 Sep and 5 Feb. Tick both tasks to fill it.</p></div>
+        <div><h2>Never miss twice</h2><p class="lede" id="logLede">Each square is one day of your plan. Tick both tasks to fill it.</p></div>
         <div class="stats">
           <div class="stat"><b id="sStreak">0</b><span>day streak</span></div>
           <div class="stat"><b id="sActive">0</b><span>days you showed up</span></div>
@@ -622,7 +637,7 @@ table.plan tr.past td{color:var(--faint)}
         <circle class="fill" id="ringFill" cx="42" cy="42" r="36" transform="rotate(-90 42 42)" stroke-dasharray="226.2" stroke-dashoffset="226.2"/>
         <text x="42" y="49" text-anchor="middle" id="ringText">—</text>
       </svg>
-      <div><h2 id="daysLeft">— days</h2><p>until you turn 27 on 5 Feb</p><p id="dayWeek">Day — · Week —</p></div>
+      <div><h2 id="daysLeft">— days</h2><p id="deadlineLine">until your deadline</p><p id="dayWeek">Day — · Week —</p></div>
     </div>
 
     <div>
@@ -668,33 +683,43 @@ table.plan tr.past td{color:var(--faint)}
   </aside>
 </div>
 
+<div class="onboard" id="onboard" hidden>
+  <form class="ob-card" id="obForm">
+    <div class="ob-head"><span class="ob-logo">Forge</span><h2>Let's set up your coach</h2><p>One minute. Your coach uses this to plan, pace and personalise every session. Everything stays on your computer.</p></div>
+    <div class="ob-grid">
+      <label>Your first name *<input id="obName" required maxlength="40" placeholder="e.g. Priya"></label>
+      <label>Interview deadline *<input id="obDeadline" type="date" required></label>
+      <label class="wide">Your goal<input id="obGoal" maxlength="160" placeholder="e.g. Crack a FAANG senior frontend role by March"></label>
+      <label>Countdown label<input id="obLabel" maxlength="60" placeholder="until offer day"></label>
+      <label>Interview language<select id="obLang"><option>Python</option></select></label>
+      <label class="wide">Languages and stacks you already know<input id="obKnows" maxlength="200" placeholder="e.g. JavaScript, React, Node.js"></label>
+      <label>Time per day<select id="obHours"><option>30–60 min</option><option selected>1–2 h</option><option>2–3 h</option><option>3 h+</option></select></label>
+      <label>DSA level today<select id="obLevel">
+        <option>Beginner: arrays and hash maps feel new</option>
+        <option selected>Some practice: I can do easy problems</option>
+        <option>Comfortable: most mediums with effort</option>
+        <option>Strong: polishing for interviews</option></select></label>
+      <label class="wide">Known weak spots, one per line (optional)<textarea id="obWeak" rows="3" maxlength="800" placeholder="e.g. recursion&#10;Big-O of nested loops"></textarea></label>
+    </div>
+    <p class="ob-err" id="obErr"></p>
+    <div class="ob-foot"><span>The app runs Python practice code on this machine. The coach runs on your own Claude Code login.</span><button type="submit" class="send ob-go">Start coaching →</button></div>
+  </form>
+</div>
+
 <script>
 (() => {
-  const START = new Date(2026, 8, 23), END = new Date(2027, 1, 5);
-  const DAY = 86400000, TOTAL = Math.round((END - START) / DAY) + 1;
+  // per-learner config injected by the server (profile + plan); null before onboarding
+  const CFG = /*FORGE_CONFIG*/null || { profile: null, plan: { weeks: [["Arrays & hashing", ["Hello Interview: Introduction"]]], firstWeekProblems: [] } };
+  const PROFILE = CFG.profile, ONBOARDED = !!(PROFILE && PROFILE.name && PROFILE.deadline);
+  const parseDay = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ""); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
+  const START = parseDay(PROFILE && PROFILE.start) || new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+  const END = parseDay(PROFILE && PROFILE.deadline) || new Date(START.getTime() + 132 * 86400000);
+  const DAY = 86400000, TOTAL = Math.max(7, Math.round((END - START) / DAY) + 1);
   const HI = "https://www.hellointerview.com/learn/system-design/in-a-hurry/introduction", XU = "https://bytebytego.com/", GFE = "https://www.greatfrontend.com/front-end-system-design-playbook";
-  const WEEKS = [
-    ["Python toolkit + arrays & hashing", ["Hello Interview: Introduction", "Hello Interview: Delivery Framework", "Xu: Scale From Zero to Millions of Users"]],
-    ["Two pointers + prefix sum (+2 cyclic sort)", ["Hello Interview: Networking Essentials", "Hello Interview: API Design", "Xu: Back-of-the-envelope Estimation"]],
-    ["Sliding window, stacks, monotonic stack", ["Hello Interview: Data Modeling", "Hello Interview: Caching"]],
-    ["Binary search + review weeks 1–3", ["Hello Interview: Sharding", "Hello Interview: Consistent Hashing", "Hello Interview: CAP Theorem", "Xu: A Framework for System Design Interviews"]],
-    ["Linked lists: fast & slow, reversal", ["Key tech: Redis", "Key tech: Kafka", "Xu: Design a Rate Limiter"]],
-    ["Trees: DFS & BFS", ["Key tech: Cassandra", "Key tech: DynamoDB", "Xu: Design Consistent Hashing", "Xu: Design a Key-value Store"]],
-    ["Trees continued + tries", ["Key tech: Elasticsearch", "Key tech: API Gateway", "Xu: Unique ID Generator"]],
-    ["Heaps: top-K, two heaps, K-way merge", ["Xu: Design a URL Shortener", "Hello Interview: Bitly breakdown"]],
-    ["Backtracking", ["Xu: Design a Web Crawler", "Hello Interview: Rate Limiter breakdown"]],
-    ["Graphs: BFS/DFS, islands", ["Hello Interview: Dropbox", "Xu: Design Google Drive"]],
-    ["Advanced graphs: topo sort, union-find, Dijkstra", ["Xu: Notification System", "Xu: News Feed System", "Hello Interview: Facebook News Feed"]],
-    ["1-D dynamic programming", ["Xu: Design a Chat System", "Hello Interview: WhatsApp"]],
-    ["2-D dynamic programming", ["Xu: Search Autocomplete", "Xu: Design YouTube", "Hello Interview: YouTube"]],
-    ["Greedy + intervals", ["Hello Interview: Ticketmaster", "Hello Interview: Tinder"]],
-    ["Bit manipulation, maths, weak spots", ["Xu vol 2: Proximity Service", "Xu vol 2: Payment System"]],
-    ["Mixed timed sets", ["GreatFrontEnd: News Feed", "GreatFrontEnd: Autocomplete"]],
-    ["Mixed timed sets + Sunday contests", ["Xu vol 2: Real-time Gaming Leaderboard", "Xu vol 2: Hotel Reservation System"]],
-    ["Mock interviews", ["Timed 45-minute design, spoken out loud"]],
-    ["Mocks, applications, referrals", ["Redo your 3 weakest designs"]],
-  ];
-  const WEEK1 = ["Contains Duplicate", "Valid Anagram", "Two Sum", "Group Anagrams", "Top K Frequent Elements", "Encode and Decode Strings", "Product of Array Except Self"];
+  const WEEKS = CFG.plan.weeks, WEEK1 = CFG.plan.firstWeekProblems || [];
+  const NWEEKS = Math.ceil(TOTAL / 7);
+  const LEARNER_NAME = (PROFILE && PROFILE.name) || "you";
+  const isMe = m => !!m && (m.role === "learner" || m.role === "arun"); // "arun" = role stored by older installs
   const SPLIT = {
     heavy: "40 min coding (re-solve or one easy) · 20 min system design (one concept)",
     normal: "80 min coding (one new + one re-solve) · 40 min system design (concept + notes)",
@@ -706,11 +731,12 @@ table.plan tr.past td{color:var(--faint)}
   const midnight = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const today = midnight(new Date());
   const dayNum = Math.min(TOTAL, Math.max(1, Math.round((today - START) / DAY) + 1));
-  const weekNum = Math.min(19, Math.ceil(dayNum / 7));
+  const weekNum = Math.min(NWEEKS, Math.ceil(dayNum / 7));
+  const planWeek = Math.min(WEEKS.length - 1, Math.floor((weekNum - 1) * WEEKS.length / NWEEKS));
   const dIdx = (dayNum - 1) % 7;
-  const [codeTopic, sdList] = WEEKS[weekNum - 1];
+  const [codeTopic, sdList] = WEEKS[planWeek];
   const sdToday = sdList[dIdx % sdList.length];
-  const probToday = weekNum === 1 ? WEEK1[dIdx] : codeTopic;
+  const probToday = planWeek === 0 && WEEK1[dIdx] ? WEEK1[dIdx] : codeTopic;
   const daysLeft = Math.max(0, Math.round((END - today) / DAY));
   const fmt = d => d.toLocaleDateString(undefined, { day: "numeric", month: "short" });
   const todayKey = key(today);
@@ -740,12 +766,37 @@ table.plan tr.past td{color:var(--faint)}
     })();
   }
 
+  // onboarding: first open, no profile yet
+  if (!ONBOARDED) {
+    $("onboard").hidden = false;
+    const d = new Date(); d.setDate(d.getDate() + 120);
+    $("obDeadline").value = key(d);
+    $("obName").focus();
+    $("obForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const levelMap = ["Beginner", "Some practice", "Comfortable", "Strong"];
+      const body = {
+        name: $("obName").value.trim(), deadline: $("obDeadline").value, start: key(midnight(new Date())),
+        goal: $("obGoal").value.trim() || "Interview-ready in DSA and system design",
+        deadlineLabel: $("obLabel").value.trim() || "until your deadline",
+        language: $("obLang").value, knows: $("obKnows").value.trim(), hours: $("obHours").value,
+        level: $("obLevel").value, weakSpots: $("obWeak").value.split("\n").map(x => x.trim()).filter(Boolean),
+      };
+      if (parseDay(body.deadline) <= midnight(new Date())) { $("obErr").textContent = "Pick a deadline in the future."; return; }
+      try {
+        const r = await (await fetch("/api/profile", { method: "POST", headers: { "Content-Type": "application/json", "X-Forge-Token": CFG.token || "" }, body: JSON.stringify(body) })).json();
+        if (r.error) { $("obErr").textContent = r.error; return; }
+        location.reload();
+      } catch (_) { $("obErr").textContent = "Couldn't reach the Forge server. Is it still running?"; }
+    });
+  }
+
   // static
   $("title").textContent = "Day " + dayNum + (weekNum === 1 && dayNum === 1 ? " · the first day" : "");
   $("chipCode").textContent = probToday;
   $("chipSD").textContent = sdToday;
   $("daysLeft").textContent = daysLeft + " days";
-  $("dayWeek").textContent = "Day " + dayNum + " of " + TOTAL + " · Week " + weekNum + " of 19";
+  $("dayWeek").textContent = "Day " + dayNum + " of " + TOTAL + " · Week " + weekNum + " of " + NWEEKS;
   $("ringText").textContent = Math.round(dayNum / TOTAL * 100) + "%";
   $("ringFill").setAttribute("stroke-dashoffset", (226.2 * (1 - dayNum / TOTAL)).toFixed(1));
   $("tCode").textContent = probToday;
@@ -753,10 +804,16 @@ table.plan tr.past td{color:var(--faint)}
   const src = sdToday.startsWith("Xu") ? ["ByteByteGo", XU] : sdToday.startsWith("GreatFrontEnd") ? ["GreatFrontEnd", GFE] : ["Hello Interview", HI];
   $("tSDHow").innerHTML = 'On <a href="' + src[1] + '" target="_blank" rel="noopener">' + src[0] + "</a>. Read, then write your line.";
   $("weekList").innerHTML = sdList.map((s, i) => '<div class="' + (i === dIdx % sdList.length ? "now" : "") + '"><span>' + (i + 1) + "</span>" + s.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</div>").join("");
+  $("deadlineLine").textContent = ((PROFILE && PROFILE.deadlineLabel) || "until your deadline") + " on " + END.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+  $("planTitle").textContent = NWEEKS + " weeks, both tracks, every day";
+  $("logLede").textContent = "Each square is one day between " + fmt(START) + " and " + fmt(END) + ". Tick both tasks to fill it.";
+  $("logoMark").textContent = PROFILE && PROFILE.name ? PROFILE.name.trim()[0].toUpperCase() : "·";
+  // the plan's weeks are stretched or squeezed onto the learner's own timeline
   WEEKS.forEach(([c, s], i) => {
     const tr = document.createElement("tr"), w = i + 1;
-    if (w === weekNum) tr.className = "now"; else if (w < weekNum) tr.className = "past";
-    [["wk", "W" + pad(w)], ["", fmt(new Date(START.getTime() + i * 7 * DAY))], ["", c], ["", s.join(" · ")]].forEach(([cls, t]) => {
+    if (i === planWeek) tr.className = "now"; else if (i < planWeek) tr.className = "past";
+    const startsWeek = Math.floor(i * NWEEKS / WEEKS.length);
+    [["wk", "W" + pad(w)], ["", fmt(new Date(START.getTime() + startsWeek * 7 * DAY))], ["", c], ["", s.join(" · ")]].forEach(([cls, t]) => {
       const td = document.createElement("td"); if (cls) td.className = cls; td.textContent = t; tr.appendChild(td);
     });
     $("planBody").appendChild(tr);
@@ -827,7 +884,7 @@ table.plan tr.past td{color:var(--faint)}
     });
     return out;
   }
-  function plain(src) { // Arun's own text: keep his line breaks, fence code
+  function plain(src) { // the learner's own text: keep their line breaks, fence code
     return String(src || "").split(/```/).map((p, i) => i % 2 ? "<pre>" + esc(p.replace(/^[a-zA-Z0-9]*\n/, "").replace(/\n$/, "")) + "</pre>" : esc(p)).join("");
   }
 
@@ -861,7 +918,7 @@ table.plan tr.past td{color:var(--faint)}
     let fromMsg = null;
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
-      if (m.role !== "arun") { const t = taskOf(m.text); if (t) { fromMsg = { id: m.id, text: t, manual: false, at: m.createdAt || 0 }; break; } }
+      if (!isMe(m)) { const t = taskOf(m.text); if (t) { fromMsg = { id: m.id, text: t, manual: false, at: m.createdAt || 0 }; break; } }
     }
     if (serverTask && serverTask.text && (!fromMsg || (serverTask.updatedAt || 0) > fromMsg.at)) return { id: serverTask.fromId, text: serverTask.text, manual: false };
     return fromMsg;
@@ -920,7 +977,7 @@ table.plan tr.past td{color:var(--faint)}
       else if (b.dataset.act === "go") jumpTo(id);
       else togglePin(id);
     }));
-    const hist = messages.filter(m => m.role !== "arun" && taskOf(m.text) && (!t || m.id !== t.id) && !isPinned(m.id)).reverse().slice(0, 8);
+    const hist = messages.filter(m => !isMe(m) && taskOf(m.text) && (!t || m.id !== t.id) && !isPinned(m.id)).reverse().slice(0, 8);
     $("probHistWrap").hidden = !hist.length;
     $("probHist").innerHTML = hist.map(m => '<button type="button" data-pin="' + m.id + '">' + esc(titleOf(taskOf(m.text))) + "<span>📌 Pin · Day " + (m.day || 1) + "</span></button>").join("");
     $("probHist").querySelectorAll("button").forEach(b => b.onclick = () => togglePin(b.dataset.pin));
@@ -978,14 +1035,14 @@ table.plan tr.past td{color:var(--faint)}
 
   function renderThread() {
     const answered = new Set(messages.filter(m => m.replyTo).map(m => m.replyTo));
-    const isWaiting = m => m.role === "arun" && m.status === "waiting" && !answered.has(m.id);
+    const isWaiting = m => isMe(m) && m.status === "waiting" && !answered.has(m.id);
     let html = "", lastDay = null;
     if (!messages.length) html = '<div class="sep">No messages yet</div>';
     messages.forEach(m => {
       const d = m.day || 1;
       if (d !== lastDay) { lastDay = d; const dt = new Date(START.getTime() + (d - 1) * DAY); html += '<div class="sep">Day ' + d + " · " + dt.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) + "</div>"; }
       const tg = '<span class="tag ' + (m.track || "general") + '">' + trackName(m.track) + "</span>";
-      if (m.role === "arun") {
+      if (isMe(m)) {
         const w = isWaiting(m);
         html += '<div class="msg me-row"><div class="me-wrap"><div class="me-bubble">' + plain(m.text) + '</div><div class="me-meta">' + tg + "<span>" + timeStr(m.createdAt) + '</span><span class="state ' + (w ? "wait" : "done") + '">' + (w ? "Sent" : "Answered") + "</span></div></div></div>";
       } else {
@@ -1008,7 +1065,7 @@ table.plan tr.past td{color:var(--faint)}
       try { navigator.clipboard.writeText(code).then(done, () => {}); } catch (_) {}
     });
     $("badge").hidden = !waiting.length; $("badge").textContent = waiting.length;
-    $("sAsked").textContent = messages.filter(m => m.role === "arun").length;
+    $("sAsked").textContent = messages.filter(m => isMe(m)).length;
     stick(false);
   }
 
@@ -1028,7 +1085,7 @@ table.plan tr.past td{color:var(--faint)}
     if (!online || !text) return;
     sendBtn.disabled = true;
     try {
-      await api("/api/messages", { role: "arun", text, track, day: dayNum });
+      await api("/api/messages", { role: "learner", text, track, day: dayNum });
       ask.value = ""; grow(); try { localStorage.removeItem("forge27-draft"); } catch (_) {}
       stuck = true; await poll();
     } catch (_) {
@@ -1288,7 +1345,7 @@ table.plan tr.past td{color:var(--faint)}
 
   // server
   async function api(path, body) {
-    const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : { cache: "no-store" });
+    const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json", "X-Forge-Token": CFG.token || "" }, body: JSON.stringify(body) } : { cache: "no-store", headers: { "X-Forge-Token": CFG.token || "" } });
     if (!r.ok) throw new Error("HTTP " + r.status);
     return r.json();
   }
@@ -1315,7 +1372,7 @@ table.plan tr.past td{color:var(--faint)}
   // live coach stream: fast polling only while a reply is being written
   let liveKey = "";
   async function pollLive() {
-    const needed = live.active || messages.some(m => m.role === "arun" && m.status === "waiting");
+    const needed = live.active || messages.some(m => isMe(m) && m.status === "waiting");
     if (needed && online) {
       try {
         const l = await api("/api/live");

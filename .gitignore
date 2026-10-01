@@ -1,10 +1,16 @@
-# personal study data — never commit
+# personal study data and runtime files: never commit
 data.json
 data.tmp
+data.backup-*.json
 inbox.log
 .cursor
+profile.json
+progress.md
+coach_system.md
+coach_quality.log
+coach_prompt.md
+server.pid
+server.log
+tmp/
 run_*.py
 __pycache__/
-data.backup-*.json
-progress.md
-coach_quality.log

@@ -1,0 +1,26 @@
+{
+  "name": "NeetCode 150 + system design, both tracks every day",
+  "coding": "NeetCode 150, in pattern order",
+  "weeks": [
+    ["Python toolkit + arrays & hashing", ["Hello Interview: Introduction", "Hello Interview: Delivery Framework", "Xu: Scale From Zero to Millions of Users"]],
+    ["Two pointers + prefix sum", ["Hello Interview: Networking Essentials", "Hello Interview: API Design", "Xu: Back-of-the-envelope Estimation"]],
+    ["Sliding window, stacks, monotonic stack", ["Hello Interview: Data Modeling", "Hello Interview: Caching"]],
+    ["Binary search + review", ["Hello Interview: Sharding", "Hello Interview: Consistent Hashing", "Hello Interview: CAP Theorem", "Xu: A Framework for System Design Interviews"]],
+    ["Linked lists: fast & slow, reversal", ["Key tech: Redis", "Key tech: Kafka", "Xu: Design a Rate Limiter"]],
+    ["Trees: DFS & BFS", ["Key tech: Cassandra", "Key tech: DynamoDB", "Xu: Design Consistent Hashing", "Xu: Design a Key-value Store"]],
+    ["Trees continued + tries", ["Key tech: Elasticsearch", "Key tech: API Gateway", "Xu: Unique ID Generator"]],
+    ["Heaps: top-K, two heaps, K-way merge", ["Xu: Design a URL Shortener", "Hello Interview: Bitly breakdown"]],
+    ["Backtracking", ["Xu: Design a Web Crawler", "Hello Interview: Rate Limiter breakdown"]],
+    ["Graphs: BFS/DFS, islands", ["Hello Interview: Dropbox", "Xu: Design Google Drive"]],
+    ["Advanced graphs: topo sort, union-find, Dijkstra", ["Xu: Notification System", "Xu: News Feed System", "Hello Interview: Facebook News Feed"]],
+    ["1-D dynamic programming", ["Xu: Design a Chat System", "Hello Interview: WhatsApp"]],
+    ["2-D dynamic programming", ["Xu: Search Autocomplete", "Xu: Design YouTube", "Hello Interview: YouTube"]],
+    ["Greedy + intervals", ["Hello Interview: Ticketmaster", "Hello Interview: Tinder"]],
+    ["Bit manipulation, maths, weak spots", ["Xu vol 2: Proximity Service", "Xu vol 2: Payment System"]],
+    ["Mixed timed sets", ["GreatFrontEnd: News Feed", "GreatFrontEnd: Autocomplete"]],
+    ["Mixed timed sets + weekly contests", ["Xu vol 2: Real-time Gaming Leaderboard", "Xu vol 2: Hotel Reservation System"]],
+    ["Mock interviews", ["Timed 45-minute design, spoken out loud"]],
+    ["Mocks, applications, referrals", ["Redo your 3 weakest designs"]]
+  ],
+  "firstWeekProblems": ["Contains Duplicate", "Valid Anagram", "Two Sum", "Group Anagrams", "Top K Frequent Elements", "Encode and Decode Strings", "Product of Array Except Self"]
+}
