@@ -93,7 +93,12 @@ body.resizing{cursor:col-resize;user-select:none}
 .rail button.nav[aria-current="page"] svg{color:var(--accent)}
 .rail .badge{position:absolute;top:4px;right:8px;min-width:18px;height:18px;border-radius:9px;background:var(--pop);color:#fff;font:600 11px/18px var(--mono);text-align:center;padding:0 4px}
 .rail .spacer{flex:1}
-.swatches{display:grid;grid-template-columns:repeat(2,22px);gap:8px}
+.swatches{display:grid;grid-template-columns:repeat(4,28px);gap:10px}
+.swatches button{width:28px!important;height:28px!important}
+.settings-pop{position:fixed;left:84px;bottom:16px;z-index:40;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px}
+.settings-pop .label{margin:0 0 8px}
+.pal-names{display:grid;grid-template-columns:repeat(4,28px);gap:10px;margin-top:6px;font-size:9.5px;color:var(--muted);text-align:center}
+.settings-btn svg{width:20px!important;height:20px!important}
 .swatches button{appearance:none;width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid var(--panel);background:conic-gradient(var(--a) 0 50%,var(--b) 50% 80%,var(--c) 80%);box-shadow:0 0 0 1px var(--line)}
 .swatches button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
@@ -101,7 +106,7 @@ body.resizing{cursor:col-resize;user-select:none}
 /* center */
 .center{min-width:0;min-height:0;display:flex;flex-direction:column;height:100%;overflow:hidden}
 code,pre,kbd,.mono{font-variant-ligatures:none!important;font-feature-settings:"liga" 0,"calt" 0!important}
-.topbar{flex:none;display:flex;align-items:center;gap:14px;padding:14px 28px 17px;background:linear-gradient(90deg,var(--accent),var(--me) 50%,var(--sun-b)) bottom/100% 3px no-repeat,var(--panel)}
+.topbar{flex:none;display:flex;align-items:center;gap:14px;padding:14px 28px 17px;background:linear-gradient(90deg,var(--accent),var(--ember)) bottom/100% 2px no-repeat,var(--panel)}
 .topbar h1{font:700 19px/1.2 var(--display);margin:0;letter-spacing:-.01em;white-space:nowrap}
 .chips{display:flex;gap:8px;flex-wrap:wrap;min-width:0}
 .chip{font:500 12px/1 var(--body);padding:6px 10px;border-radius:99px;background:var(--raise);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
@@ -126,7 +131,7 @@ code,pre,kbd,.mono{font-variant-ligatures:none!important;font-feature-settings:"
 .tag.code{background:var(--accent-soft);color:var(--accent)} .tag.sd{background:var(--ember-soft);color:var(--ember)} .tag.general{background:var(--raise);color:var(--muted)}
 .me-row{justify-content:flex-end}
 .me-wrap{max-width:min(620px,85%);display:flex;flex-direction:column;align-items:flex-end;gap:5px}
-.me-bubble{background:var(--me);color:var(--me-ink);padding:10px 14px;border-radius:16px 4px 16px 16px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px}
+.me-bubble{background:var(--ink);color:var(--panel);padding:10px 14px;border-radius:16px 4px 16px 16px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px}
 .me-bubble pre{white-space:pre;background:rgba(0,0,0,.25);color:inherit;padding:8px 10px;border-radius:8px;overflow-x:auto;margin:6px 0 0;font:13px/1.5 var(--mono)}
 .me-bubble.has-code{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-right:4px solid var(--me);white-space:normal;width:min(640px,100%)}
 .me-bubble.has-code .codebox{margin:8px 0}
@@ -145,6 +150,11 @@ code,pre,kbd,.mono{font-variant-ligatures:none!important;font-feature-settings:"
 .md hr{border:0;border-top:1px dashed var(--line);margin:16px 0}
 .md code{font:13px var(--mono);background:var(--raise);border:1px solid var(--line);padding:1px 5px;border-radius:5px}
 .md blockquote{margin:0 0 12px;padding:10px 14px;border-left:3px solid var(--accent);background:var(--raise);border-radius:0 10px 10px 0}
+.outbox{position:relative;margin:0 0 12px;border-radius:10px;background:var(--raise);border:1px solid var(--line);border-left:4px solid var(--accent)}
+.outbox .out-label{position:absolute;top:0;left:12px;font:700 10px/24px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.outbox pre{margin:0;padding:24px 14px 10px 30px;overflow-x:auto;font:13px/1.6 var(--mono);color:var(--ink)}
+.outbox pre::before{content:"→";position:absolute;left:12px;top:24px;color:var(--accent);font:700 13px/1.6 var(--mono)}
+.outbox code{background:none;border:0;padding:0;font:inherit;color:inherit}
 .codebox{position:relative;margin:0 0 12px;border-radius:10px;background:var(--code-bg);border:1px solid var(--code-line);overflow:hidden}
 .codebox .lang{position:absolute;top:0;left:12px;font:600 10px/24px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--hl-c)}
 .codebox pre{margin:0;padding:26px 14px 12px;overflow-x:auto;color:var(--code-ink);font:13px/1.6 var(--mono)}
@@ -196,7 +206,7 @@ code,pre,kbd,.mono{font-variant-ligatures:none!important;font-feature-settings:"
 .box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .box textarea{flex:1;border:0;background:transparent;resize:none;color:var(--ink);font:15px/1.5 var(--body);max-height:240px;min-height:24px;padding:6px 0;outline:none}
 .send{appearance:none;border:0;background:var(--accent);color:var(--accent-ink);width:40px;height:40px;border-radius:10px;cursor:pointer;display:grid;place-items:center;flex:none}
-.send:disabled{opacity:.4;cursor:default}
+.send:disabled{background:var(--sunk);color:var(--faint);cursor:default}
 .send svg{width:18px;height:18px}
 .below{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:10px;flex-wrap:wrap}
 .track{display:flex;gap:4px;background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:3px}
@@ -336,6 +346,13 @@ code,pre,kbd,.mono{font-variant-ligatures:none!important;font-feature-settings:"
 .mchip.mastered{background:var(--good-soft);color:var(--good)}
 .mdue{font-size:11px;color:var(--faint);white-space:nowrap}
 .mdue.now{color:var(--pop);font-weight:700}
+.opt-list{display:flex;flex-direction:column;gap:6px;margin:4px 0 12px;align-items:flex-start}
+.opt{appearance:none;text-align:left;border:1px solid var(--line);background:var(--raise);color:var(--ink);border-radius:12px;padding:8px 12px;font:14px/1.4 var(--body);max-width:100%}
+.opt b{display:inline-grid;place-items:center;width:22px;height:22px;margin-right:8px;border-radius:50%;background:var(--panel);border:1px solid var(--line);font:700 12px var(--mono);color:var(--accent)}
+.opt.live{cursor:pointer;border-color:var(--accent-line)}
+.opt.live:hover{background:var(--accent-soft)}
+.opt.live:hover b{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt.picked{background:var(--accent-soft);border-color:var(--accent)}
 .statuschip{display:inline-block;line-height:1.5;margin:0 0 10px;padding:5px 10px;border-radius:8px;background:var(--raise);border:1px solid var(--line);font-size:12.5px}
 .prob-hist{display:flex;flex-direction:column;gap:6px}
 .prob-hist button{appearance:none;text-align:left;border:1px solid var(--line);background:var(--raise);border-radius:10px;padding:8px 12px;cursor:pointer;color:var(--ink);font-size:13px;display:flex;justify-content:space-between;gap:8px}
@@ -422,7 +439,7 @@ table.plan tr.past td{color:var(--faint)}
 @media (max-width:720px){
   .app{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}
   .rail{grid-row:2;flex-direction:row;justify-content:space-around;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));border-right:0;border-top:1px solid var(--line)}
-  .logo,.rail .spacer{display:none}
+  .logo,.rail .spacer,.settings-btn,.settings-pop{display:none!important}
   .topbar{padding:12px 16px;flex-wrap:wrap}
   .chips{display:none}
   .thread{padding:18px 16px 8px}
@@ -462,12 +479,17 @@ table.plan tr.past td{color:var(--faint)}
       Streak
     </button>
     <div class="spacer"></div>
+    <button type="button" class="nav settings-btn" id="settingsBtn" aria-haspopup="true" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+      Theme
+    </button>
+    <div class="settings-pop" id="settingsPop" hidden><p class="label">Colour palette</p>
     <div class="swatches" role="group" aria-label="Colour palette">
       <button type="button" id="pal-sunny" data-pal="sunny" title="Sunny" aria-label="Sunny palette" style="--a:#12b37a;--b:#3d7cff;--c:#ffc23d"></button>
       <button type="button" id="pal-candy" data-pal="candy" title="Candy" aria-label="Candy palette" style="--a:#ff4f9a;--b:#8b5cf6;--c:#ffd23f"></button>
       <button type="button" id="pal-ocean" data-pal="ocean" title="Ocean" aria-label="Ocean palette" style="--a:#0bb3c4;--b:#2563eb;--c:#ff7a1a"></button>
       <button type="button" id="pal-night" data-pal="night" title="Night" aria-label="Night palette" style="--a:#3ee6a8;--b:#5b7cfa;--c:#15132e"></button>
-    </div>
+    </div><div class="pal-names"><span>Sunny</span><span>Candy</span><span>Ocean</span><span>Night</span></div></div>
   </nav>
   <canvas id="confetti" aria-hidden="true"></canvas>
 
@@ -662,9 +684,9 @@ table.plan tr.past td{color:var(--faint)}
     <div>
       <p class="label">What kind of day?</p>
       <div class="seg" role="group" aria-label="Day type">
-        <button type="button" id="dt-heavy" data-type="heavy" aria-pressed="false"><b>1 h</b>Heavy work</button>
+        <button type="button" id="dt-heavy" data-type="heavy" aria-pressed="false"><b>1 h</b>Busy day</button>
         <button type="button" id="dt-normal" data-type="normal" aria-pressed="true"><b>2 h</b>Normal</button>
-        <button type="button" id="dt-light" data-type="light" aria-pressed="false"><b>3 h+</b>Light</button>
+        <button type="button" id="dt-light" data-type="light" aria-pressed="false"><b>3 h+</b>Free day</button>
       </div>
       <p class="split" id="splitText"></p>
     </div>
@@ -684,7 +706,7 @@ table.plan tr.past td{color:var(--faint)}
           <span class="k sd">System design</span>
           <span class="t" id="tSD">—</span>
           <span class="s" id="tSDHow">—</span>
-          <input class="note" id="noteSD" placeholder="One line you'd say in an interview" aria-label="System design note">
+          <input class="note" id="noteSD" placeholder="Your interview one-liner" aria-label="System design note">
         </label>
       </div>
     </div>
@@ -768,6 +790,8 @@ table.plan tr.past td{color:var(--faint)}
   let pal = "sunny";
   try { pal = localStorage.getItem("forge27-palette") || "sunny"; } catch (_) {}
   setPal(pal);
+  $("settingsBtn").onclick = e => { e.stopPropagation(); const pop = $("settingsPop"); pop.hidden = !pop.hidden; $("settingsBtn").setAttribute("aria-expanded", String(!pop.hidden)); };
+  document.addEventListener("click", e => { if (!$("settingsPop").hidden && !e.target.closest("#settingsPop")) { $("settingsPop").hidden = true; $("settingsBtn").setAttribute("aria-expanded", "false"); } });
   document.querySelectorAll(".swatches button").forEach(b => b.onclick = () => { setPal(b.dataset.pal); try { localStorage.setItem("forge27-palette", b.dataset.pal); } catch (_) {} });
 
   // confetti when both tracks are done
@@ -845,7 +869,7 @@ table.plan tr.past td{color:var(--faint)}
     if (v === "coach") stick(true);
     try { history.replaceState(null, "", "#" + v); } catch (_) {}
   }
-  document.querySelectorAll(".rail .nav").forEach(b => b.onclick = () => show(b.dataset.view));
+  document.querySelectorAll(".rail .nav[data-view]").forEach(b => b.onclick = () => show(b.dataset.view));
   $("todayToggle").onclick = () => $("side").classList.toggle("show");
   if (views.includes(location.hash.slice(1))) show(location.hash.slice(1));
 
@@ -868,7 +892,8 @@ table.plan tr.past td{color:var(--faint)}
     }
     let html = esc(code);
     if ((lang === "python" || lang === "py") && window.hljs) { try { html = hljs.highlight(code, { language: "python" }).value; } catch (_) {} }
-    return '<div class="codebox">' + (lang && lang !== "text" ? '<span class="lang">' + esc(lang) + "</span>" : "") + '<button class="copy" type="button">Copy</button><pre><code>' + html + "</code></pre></div>";
+    if (lang === "text" || lang === "output") return '<div class="outbox"><span class="out-label">Output</span><pre><code>' + html + "</code></pre></div>";
+    return '<div class="codebox">' + (lang ? '<span class="lang">' + esc(lang) + "</span>" : "") + '<button class="copy" type="button">Copy</button><pre><code>' + html + "</code></pre></div>";
   }
   const lineBreaks = t => t.split("\n").map(x => x.trim()).filter(Boolean).join("\n\n"); // keep task lines separate
   function md(src) {
@@ -1059,27 +1084,29 @@ table.plan tr.past td{color:var(--faint)}
   function renderThread() {
     const answered = new Set(messages.filter(m => m.replyTo).map(m => m.replyTo));
     const isWaiting = m => isMe(m) && m.status === "waiting" && !answered.has(m.id);
-    let html = "", lastDay = null;
+    let html = "", lastDay = null, lastTrack = null;
     if (!messages.length) html = '<div class="sep">No messages yet</div>';
     messages.forEach(m => {
       const d = m.day || 1;
       if (d !== lastDay) { lastDay = d; const dt = new Date(START.getTime() + (d - 1) * DAY); html += '<div class="sep">Day ' + d + " · " + dt.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) + "</div>"; }
-      const tg = '<span class="tag ' + (m.track || "general") + '">' + trackName(m.track) + "</span>";
+      const trk = m.track || "general", tg = trk !== lastTrack ? '<span class="tag ' + trk + '">' + trackName(trk) + "</span>" : "";
+      lastTrack = trk;
       if (isMe(m)) {
         const w = isWaiting(m);
         html += '<div class="msg me-row"><div class="me-wrap"><div class="me-bubble' + (/```/.test(m.text || "") ? " has-code" : "") + '">' + plain(m.text) + '</div><div class="me-meta">' + tg + "<span>" + timeStr(m.createdAt) + '</span><span class="state ' + (w ? "wait" : "done") + '">' + (w ? "Sent" : "Answered") + "</span></div></div></div>";
       } else {
         const pinned = isPinned(m.id);
-        html += '<div class="msg" id="m-' + m.id + '"><div class="avatar" aria-hidden="true">C</div><div class="coach-card' + (pinned ? " is-pinned" : "") + '"><div class="meta"><b>Coach</b>' + tg + "<span>" + timeStr(m.createdAt) + '</span><button type="button" class="pinbtn" data-pin="' + m.id + '">' + (pinned ? "📌 Pinned" : "📌 Pin") + '</button></div><div class="md">' + md(m.text) + "</div></div></div>";
+        html += '<div class="msg" id="m-' + m.id + '"><div class="avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13a3 3 0 0 1-3 3h-1v2h2v3H7v-3h2v-2H6a2 2 0 0 1-2-2Z"/><path d="M5 20h14"/></svg></div><div class="coach-card' + (pinned ? " is-pinned" : "") + '"><div class="meta"><b>Coach</b>' + tg + "<span>" + timeStr(m.createdAt) + '</span><button type="button" class="pinbtn" data-pin="' + m.id + '">' + (pinned ? "📌 Pinned" : "📌 Pin") + '</button></div><div class="md">' + md(m.text) + "</div></div></div>";
       }
     });
     const waiting = messages.filter(isWaiting);
     if (live.active && live.text) {
-      html += '<div class="msg"><div class="avatar" aria-hidden="true">C</div><div class="coach-card"><div class="meta"><b>Coach</b><span class="dots"><i></i><i></i><i></i></span><span>' + esc(live.status || "writing…") + '</span></div><div class="md">' + md(live.text) + "</div></div></div>";
+      html += '<div class="msg"><div class="avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13a3 3 0 0 1-3 3h-1v2h2v3H7v-3h2v-2H6a2 2 0 0 1-2-2Z"/><path d="M5 20h14"/></svg></div><div class="coach-card"><div class="meta"><b>Coach</b><span class="dots"><i></i><i></i><i></i></span><span>' + esc(live.status || "writing…") + '</span></div><div class="md">' + md(live.text) + "</div></div></div>";
     } else if (waiting.length || live.active) {
-      html += '<div class="typing"><div class="avatar" aria-hidden="true">C</div><div class="coach-card"><span class="dots"><i></i><i></i><i></i></span>' + esc(live.status || "Coach is reading your answer…") + "</div></div>";
+      html += '<div class="typing"><div class="avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13a3 3 0 0 1-3 3h-1v2h2v3H7v-3h2v-2H6a2 2 0 0 1-2-2Z"/><path d="M5 20h14"/></svg></div><div class="coach-card"><span class="dots"><i></i><i></i><i></i></span>' + esc(live.status || "Coach is reading your answer…") + "</div></div>";
     }
     thread.innerHTML = html;
+    optionChips();
     thread.querySelectorAll(".pinbtn").forEach(b => b.onclick = () => togglePin(b.dataset.pin));
     renderPin();
     thread.querySelectorAll(".copy").forEach(b => b.onclick = () => {
@@ -1091,6 +1118,47 @@ table.plan tr.past td{color:var(--faint)}
     $("sAsked").textContent = messages.filter(m => isMe(m)).length;
     stick(false);
   }
+
+
+  // A–D options in a coach message become chips. Only the newest coach message's chips are live:
+  // a tap fills "B — " into the box so the learner adds their one-line reason (answer first, then why).
+  const OPT = /^\s*(?:\*\*)?\(?([A-D])(?:\)|\.|:)(?:\*\*)?\s+(.+)$/;
+  function optionChips() {
+    const cards = [...thread.querySelectorAll(".msg:not(.me-row) .md")];
+    const newestCoach = cards[cards.length - 1];
+    cards.forEach(md => {
+      const live = md === newestCoach && !live_pending();
+      // options written as list items
+      md.querySelectorAll("ul, ol").forEach(list => {
+        const items = [...list.children].map(li => [li, OPT.exec(li.textContent)]);
+        if (items.length < 2 || items.some(([, m]) => !m)) return;
+        list.replaceWith(chipList(items.map(([li, m]) => [m[1], li.innerHTML.replace(/^\s*(?:<b>)?\(?[A-D](?:\)|\.|:)(?:<\/b>)?\s*/, "")]), live));
+      });
+      // options written on one line: "A) x B) y C) z"
+      md.querySelectorAll("p").forEach(pp => {
+        const t = pp.textContent;
+        if (!/^\s*\(?A\)/.test(t) || !/\bB\)/.test(t)) return;
+        const parts = t.split(/\s*(?=\(?\b[A-D]\)\s)/).map(x => OPT.exec(x)).filter(Boolean);
+        if (parts.length >= 2) pp.replaceWith(chipList(parts.map(m => [m[1], esc(m[2])]), live));
+      });
+    });
+  }
+  function chipList(opts, live) {
+    const box = document.createElement("div"); box.className = "opt-list";
+    opts.forEach(([letter, html]) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "opt" + (live ? " live" : ""); b.disabled = !live;
+      b.innerHTML = "<b>" + letter + "</b>" + html;
+      if (live) b.onclick = () => {
+        box.querySelectorAll(".opt").forEach(x => x.classList.toggle("picked", x === b));
+        ask.value = letter + " — "; ask.dispatchEvent(new Event("input")); ask.focus();
+        ask.setSelectionRange(ask.value.length, ask.value.length);
+      };
+      box.appendChild(b);
+    });
+    return box;
+  }
+  const live_pending = () => messages.length && isMe(messages[messages.length - 1]);
 
   // composer
   const ask = $("ask"), sendBtn = $("sendBtn");
