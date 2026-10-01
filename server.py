@@ -50,6 +50,9 @@ LIVE = {"active": False, "replyTo": None, "text": "", "status": ""}
 WAKE = threading.Event()
 CLAUDE = shutil.which("claude") or str(Path.home() / ".local" / "bin" / "claude")
 LEARNER = ("learner", "arun")  # "arun" is the role older installs stored
+# The server may run detached with no console. On Windows, starting a console program from such a process
+# pops up a new terminal window each time unless the child is created without one.
+NO_WINDOW = 0x08000000 if os.name == "nt" else 0  # CREATE_NO_WINDOW
 
 
 def is_me(m):
@@ -185,7 +188,7 @@ def _run_tool(args, code, timeout, fallback):
     src.write_text(code, encoding="utf-8")
     try:
         r = subprocess.run([sys.executable, *args, str(src)], capture_output=True, text=True, timeout=timeout,
-                           cwd=str(TMP), encoding="utf-8", errors="replace")
+                           cwd=str(TMP), encoding="utf-8", errors="replace", creationflags=NO_WINDOW)
         return r, src
     except subprocess.TimeoutExpired:
         return None, src
@@ -285,10 +288,25 @@ def run_claude(prompt, system_file=None, stream=True):
            "--include-partial-messages", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}', "--tools", ""]
     if system_file:
         cmd += ["--append-system-prompt-file", str(system_file)]
-    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                         cwd=str(TMP), text=True, encoding="utf-8", errors="replace")
-    p.stdin.write(prompt)
-    p.stdin.close()
+    err_file = TMP / f"claude_err_{uuid.uuid4().hex[:6]}.txt"
+    with err_file.open("w", encoding="utf-8") as err:
+        p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=err,
+                             cwd=str(TMP), text=True, encoding="utf-8", errors="replace", creationflags=NO_WINDOW)
+        p.stdin.write(prompt)
+        p.stdin.close()
+        result = _read_stream(p, stream)
+        p.wait()
+    errors = err_file.read_text(encoding="utf-8", errors="replace").strip()
+    err_file.unlink(missing_ok=True)
+    if not result:
+        # surface the real reason instead of a silent "(no reply)"
+        useful = "\n".join(l for l in errors.splitlines() if "model catalog" not in l and "unrecognized_model" not in l)
+        print(f"[coach] claude exited {p.returncode} with no reply. stderr:\n{errors[-2000:]}", flush=True)
+        raise RuntimeError((useful or errors or f"claude exited with code {p.returncode} and no output")[-400:])
+    return result
+
+
+def _read_stream(p, stream):
     turn_text, final = "", None
     for line in p.stdout:
         try:
@@ -305,7 +323,6 @@ def run_claude(prompt, system_file=None, stream=True):
                     LIVE["text"], LIVE["status"] = turn_text, ""
         elif ev.get("type") == "result":
             final = ev.get("result")
-    p.wait()
     return (final or turn_text).strip()
 
 
@@ -381,9 +398,12 @@ def coach_reply(state):
     shortened = False
     if prose_words(text) > LONG_REPLY:  # one guarded shortening pass, only for runaway replies
         LIVE["status"] = "Tightening the reply…"
-        short = run_claude("Shorten this coaching reply to about 120 words of prose. Keep every code block, "
-                           "task block and status block exactly as they are. Keep the marking (✅/❌) and end with "
-                           "exactly one bolded question. Output only the shortened reply.\n\n" + text, system)
+        try:
+            short = run_claude("Shorten this coaching reply to about 120 words of prose. Keep every code block, "
+                               "task block and status block exactly as they are. Keep the marking (✅/❌) and end with "
+                               "exactly one bolded question. Output only the shortened reply.\n\n" + text, system)
+        except RuntimeError:
+            short = ""  # keep the long reply rather than lose it
         if short and prose_words(short) < prose_words(text):
             text, shortened = short, True
     log_quality(text, session_start, shortened)
